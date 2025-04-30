@@ -1,6 +1,7 @@
 #include <iostream>
 #include <conio.h>  // _getch() 함수 사용
 using namespace std;
+int x;
 
 // 맵 출력 함수
 void drawMap(int width, int height) {
