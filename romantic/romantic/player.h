@@ -6,7 +6,7 @@ using namespace std;
 
 void gotoxy(int, int);
 
-enum Direction { NONE, UP, DOWN, LEFT, RIGHT };     // 키보드 방향 입력
+enum Direction { NONE, UP, DOWN, LEFT, RIGHT };     // 플레이어 방향키 입력
 
 class Monster;
 
