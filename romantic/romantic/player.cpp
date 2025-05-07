@@ -64,7 +64,7 @@ void Player::attack(Monster* m) {
     }
 }
 
-void Player::move(Monster* m) {
+void Player::move() {
     char input;
     draw();
 
@@ -77,16 +77,16 @@ void Player::move(Monster* m) {
 
             switch (input) {
             case 'w': case 'W':
-                if (y > 0) { y--; moved = true; lastDir = UP; }
+                if (y > 3) { y--; moved = true; lastDir = UP; }
                 break;
             case 's': case 'S':
-                if (y < 4) { y++; moved = true; lastDir = DOWN; }
+                if (y < 10) { y++; moved = true; lastDir = DOWN; }
                 break;
             case 'a': case 'A':
-                if (x > 0) { x--; moved = true; lastDir = LEFT; }
+                if (x > 20) { x--; moved = true; lastDir = LEFT; }
                 break;
             case 'd': case 'D':
-                if (x < 7) { x++; moved = true; lastDir = RIGHT; }
+                if (x < 40) { x++; moved = true; lastDir = RIGHT; }
                 break;
             case 'q': case 'Q':
                 return;
@@ -94,11 +94,11 @@ void Player::move(Monster* m) {
 
             if (moved) {
                 moveCount++;
-                gotoxy(0, 6);
+                gotoxy(0, 12);  // 콘솔 아래쪽으로 이동 로그 표시
                 cout << "이동 " << moveCount << "   ";
 
                 if (moveCount == 4) {
-                    attack(m);
+                    attack();
                     moveCount = 0;
                 }
             }
