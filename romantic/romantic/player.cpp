@@ -25,7 +25,7 @@ void Player::remove() {
 void Player::attack() {
     int tx = x, ty = y;
 
-    // 공격 방향에 따라 "초기" 위치 설정
+    // 공격 방향에 따라 <초기> 위치 설정
     switch (lastDir) {
     case UP:    ty -= 1; break;
     case DOWN:  ty += 1; break;
@@ -38,15 +38,16 @@ void Player::attack() {
     int dx = tx, dy = ty;
 
     for (int i = 0; i < 3; i++) {
-        if (dx >= 0 && dx <= 7 && dy >= 0 && dy <= 4) {
+        if (dx >= 0 && dx <= 7 && dy >= 0 && dy <= 4) { // 이동 및 공격 범위
             gotoxy(dx * 2, dy);
             cout << "☆";
-            Sleep(200);
+            draw();       // 플레이어 출력
+            Sleep(100);
             gotoxy(dx * 2, dy);
             cout << " ";  // 공백 출력
         }
 
-        // 이동 방향에 따라 별의 위치 갱신
+        // 이동 방향에 따라 별의 위치 새로 입력
         switch (lastDir) {
         case UP:    dy--; break;
         case DOWN:  dy++; break;
