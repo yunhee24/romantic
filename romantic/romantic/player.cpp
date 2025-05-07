@@ -1,4 +1,5 @@
 #include "player.h"
+#include "monster.h"
 
 void gotoxy(int x, int y) {
     COORD pos = { (SHORT)x, (SHORT)y };
@@ -10,6 +11,7 @@ Player::Player() {
     y = 0;
     moveCount = 0;
     lastDir = NONE;
+    score = 0;
 }
 
 void Player::draw() {
@@ -22,10 +24,9 @@ void Player::remove() {
     cout << " ";
 }
 
-void Player::attack() {
+void Player::attack(Monster* m) {
     int tx = x, ty = y;
 
-    // 공격 방향에 따라 <초기> 위치 설정
     switch (lastDir) {
     case UP:    ty -= 1; break;
     case DOWN:  ty += 1; break;
@@ -34,20 +35,26 @@ void Player::attack() {
     default: return;
     }
 
-    // 별 이동 위치
     int dx = tx, dy = ty;
 
     for (int i = 0; i < 3; i++) {
-        if (dx >= 0 && dx <= 7 && dy >= 0 && dy <= 4) { // 이동 및 공격 범위
+        if (dx >= 0 && dx <= 8 && dy >= 0 && dy <= 5) {
             gotoxy(dx * 2, dy);
             cout << "☆";
-            draw();       // 플레이어 출력
+            draw();
             Sleep(100);
             gotoxy(dx * 2, dy);
-            cout << " ";  // 공백 출력
+            cout << " ";
+
+            // 충돌 체크
+            if (m->alive && dx == m->x && dy == m->y) {
+                m->remove();
+                score++;
+                gotoxy(0, 7);
+                cout << "점수 " << score << "   ";
+            }
         }
 
-        // 이동 방향에 따라 별의 위치 새로 입력
         switch (lastDir) {
         case UP:    dy--; break;
         case DOWN:  dy++; break;
@@ -57,8 +64,7 @@ void Player::attack() {
     }
 }
 
-
-void Player::move() {
+void Player::move(Monster* m) {
     char input;
     draw();
 
@@ -92,7 +98,7 @@ void Player::move() {
                 cout << "이동 " << moveCount << "   ";
 
                 if (moveCount == 4) {
-                    attack();
+                    attack(m);
                     moveCount = 0;
                 }
             }
