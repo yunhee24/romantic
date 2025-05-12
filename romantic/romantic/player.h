@@ -4,6 +4,8 @@
 #include <windows.h>
 using namespace std;
 
+void CursorView();
+
 void gotoxy(int, int);
 
 enum Direction { NONE, UP, DOWN, LEFT, RIGHT };     // 플레이어 방향키 입력

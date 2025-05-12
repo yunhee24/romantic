@@ -1,14 +1,22 @@
 #include "player.h"
 #include "monster.h"
 
+// 콘솔창 커서 숨김 함수
+void CursorView() {
+    CONSOLE_CURSOR_INFO cursorInfo = { 0, };
+    cursorInfo.dwSize = 1;                  // 커서 굵기 (1 ~ 100)
+    cursorInfo.bVisible = FALSE;            // 커서 Visible TRUE(보임) / FALSE(숨김)
+    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
+}
+
 void gotoxy(int x, int y) {
     COORD pos = { (SHORT)x, (SHORT)y };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
 
 Player::Player() {
-    x = 0;
-    y = 0;
+    x = 11;
+    y = 5;
     moveCount = 0;
     lastDir = NONE;
     score = 0;
@@ -38,7 +46,7 @@ void Player::attack(Monster* m) {
     int dx = tx, dy = ty;
 
     for (int i = 0; i < 3; i++) {
-        if (dx >= 0 && dx <= 8 && dy >= 0 && dy <= 5) {
+        if (dx >= 11 && dx <= 25 && dy >= 5 && dy <= 18) {
             gotoxy(dx * 2, dy);
             cout << "☆";
             draw();
@@ -46,7 +54,7 @@ void Player::attack(Monster* m) {
             gotoxy(dx * 2, dy);
             cout << " ";
 
-            // 충돌 체크
+            // 몬스터 충돌 체크
             if (m->alive && dx == m->x && dy == m->y) {
                 m->remove();
                 score++;
@@ -77,16 +85,16 @@ void Player::move(Monster* m) {
 
             switch (input) {
             case 'w': case 'W':
-                if (y > 0) { y--; moved = true; lastDir = UP; }
+                if (y > 5) { y--; moved = true; lastDir = UP; }
                 break;
             case 's': case 'S':
-                if (y < 4) { y++; moved = true; lastDir = DOWN; }
+                if (y < 18) { y++; moved = true; lastDir = DOWN; }
                 break;
             case 'a': case 'A':
-                if (x > 0) { x--; moved = true; lastDir = LEFT; }
+                if (x > 11) { x--; moved = true; lastDir = LEFT; }
                 break;
             case 'd': case 'D':
-                if (x < 7) { x++; moved = true; lastDir = RIGHT; }
+                if (x < 25) { x++; moved = true; lastDir = RIGHT; }
                 break;
             case 'q': case 'Q':
                 return;
