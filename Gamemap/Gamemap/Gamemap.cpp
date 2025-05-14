@@ -1,4 +1,5 @@
 ﻿#include <iostream>
+#include "timer.h" 
 #include <conio.h>  // _getch() 함수 사용
 #include <windows.h>  // system("cls") 및 콘솔 색상 설정
 #include <fstream>  // 파일 입출력
@@ -77,9 +78,19 @@ void drawMenu(int selected) {
     cout << "\n방향키 ↑↓로 이동, Enter로 선택하세요.\n";
 }
 */
+int getDisplayWidth(const string& text) {
+    int width = 0;
+    for (char ch : text) {
+        // 한글은 대부분 음수로 표현되는 멀티바이트 첫 바이트
+        width += (ch & 0x80) ? 2 : 1;
+    }
+    return width;
+}
+
 void drawMenu(int selected) {
     system("cls");
 
+    // 타이틀 출력 생략 (위 코드 유지)
     cout << "\n\n";
     cout << "           ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\n";
     cout << "          ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝\n";
@@ -100,12 +111,12 @@ void drawMenu(int selected) {
 
     for (int i = 0; i < MENU_COUNT; ++i) {
         cout << "        │ ";
-        if (i == selected) {
-            cout << "▶ " << menuItems[i] << string(45 - menuItems[i].length(), ' ') << "│\n";
-        }
-        else {
-            cout << "   " << menuItems[i] << string(45 - menuItems[i].length(), ' ') << "│\n";
-        }
+        string label = (i == selected) ? "▶ " + menuItems[i] : "  " + menuItems[i];
+
+        int displayWidth = getDisplayWidth(label);
+        int padding = 53 - displayWidth;  // 내부 출력 폭 기준
+
+        cout << label << string(padding, ' ') << "│\n";
     }
 
     cout << "        └───────────────────────────────────────────────┘\n";
@@ -143,6 +154,8 @@ void drawMap(int width, int height) {
     cout << endl;
 }
 
+
+
 int main() {
     srand(time(0));
     const int width = 32;
@@ -167,6 +180,7 @@ int main() {
             if (selected == 0) {
                 cout << "게임을 시작합니다!\n";
                 drawMap(width, height);
+                countdownTimer(30);
                 string name;
                 int score;
 
