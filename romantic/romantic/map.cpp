@@ -1,4 +1,5 @@
 #include "map.h"
+#include "player.h"
 
 const int MENU_COUNT = 4;
 const string menuItems[MENU_COUNT] = {
@@ -72,6 +73,29 @@ void drawMap(int width, int height) {
     }
 
     cout << endl;
+}
+
+// ¸Ê ÀçÃâ·Â
+void drawMapRe(int width, int height) {
+    int offsetX = 20;
+    int offsetY = 4;
+
+    for (int x = 0; x < width; ++x) {
+        gotoxy(offsetX + x, offsetY + 0);
+        cout << "¦¡";
+    }
+
+    for (int x = 0; x < width; ++x) {
+        gotoxy(offsetX + x, offsetY + height - 1);
+        cout << "¦¡";
+    }
+
+    for (int y = 1; y < height - 1; ++y) {
+        gotoxy(offsetX + 0, offsetY + y);
+        cout << "¦¢";
+        gotoxy(offsetX + width - 1, offsetY + y);
+        cout << "¦¢";
+    }
 }
 
 int ingame() {

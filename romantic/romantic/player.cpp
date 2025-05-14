@@ -10,6 +10,7 @@ void CursorView() {
     SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
 }
 
+// 키보드 입력 함수
 void gotoxy(int x, int y) {
     COORD pos = { (SHORT)x, (SHORT)y };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
@@ -54,6 +55,7 @@ void Player::attack(Monster* m) {
             Sleep(100);
             gotoxy(dx * 2, dy);
             cout << " ";
+            drawMapRe(32, 16);
 
             // 몬스터 충돌 체크
             if (m->alive && dx == m->x && dy == m->y) {
