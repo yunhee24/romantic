@@ -1,5 +1,6 @@
 #include "player.h"
 #include "monster.h"
+#include "map.h"
 
 // ÄÜ¼ÖÃ¢ Ä¿¼­ ¼û±è ÇÔ¼ö
 void CursorView() {
@@ -24,7 +25,7 @@ Player::Player() {
 
 void Player::draw() {
     gotoxy(x * 2, y);
-    cout << "¡Ü";
+    cout << "¡Ï";
 }
 
 void Player::remove() {
@@ -46,7 +47,7 @@ void Player::attack(Monster* m) {
     int dx = tx, dy = ty;
 
     for (int i = 0; i < 3; i++) {
-        if (dx >= 11 && dx <= 25 && dy >= 5 && dy <= 18) {
+        if (dx >= 9 && dx <= 26 && dy >= 3 && dy <= 20) {
             gotoxy(dx * 2, dy);
             cout << "¡Ù";
             draw();
