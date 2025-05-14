@@ -82,12 +82,16 @@ void drawMapRe(int width, int height) {
 
     for (int x = 0; x < width; ++x) {
         gotoxy(offsetX + x, offsetY + 0);
-        cout << "式";
+        if (x == 0) cout << "忙";
+        else if (x == width - 1) cout << "忖";
+        else cout << "式";
     }
 
     for (int x = 0; x < width; ++x) {
         gotoxy(offsetX + x, offsetY + height - 1);
-        cout << "式";
+        if (x == 0) cout << "戌";
+        else if (x == width - 1) cout << "戎";
+        else cout << "式";
     }
 
     for (int y = 1; y < height - 1; ++y) {
