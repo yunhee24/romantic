@@ -1,6 +1,11 @@
 ﻿#include <iostream>
 #include <conio.h>  // _getch() 함수 사용
 #include <windows.h>  // system("cls") 및 콘솔 색상 설정
+#include <fstream>  // 파일 입출력
+#include <vector>
+#include <algorithm>  // sort
+#include <ctime>
+
 using namespace std;
 
 const int MENU_COUNT = 4;
@@ -10,6 +15,51 @@ const string menuItems[MENU_COUNT] = {
     "게임 방법",
     "게임 종료"
 };
+
+struct ScoreEntry {
+    string name;
+    int score;
+};
+
+bool compareByScore(const ScoreEntry& a, const ScoreEntry& b) {
+    return a.score > b.score;  // 높은 점수 먼저
+}
+
+void showRanking() {
+    ifstream file("scores.txt");
+    vector<ScoreEntry> rankings;
+
+    if (!file) {
+        cout << "랭킹 파일이 없습니다.\n";
+        return;
+    }
+
+    string name;
+    int score;
+    while (file >> name >> score) {
+        rankings.push_back({ name, score });
+    }
+    file.close();
+
+    sort(rankings.begin(), rankings.end(), compareByScore);
+
+    cout << "===== 게임 랭킹 =====\n";
+    for (size_t i = 0; i < rankings.size(); ++i) {
+        cout << i + 1 << ". " << rankings[i].name << " - " << rankings[i].score << endl;
+    }
+}
+
+void saveScore(const string& name, int score) {
+    ofstream file("scores.txt", ios::app);  // append 모드
+    if (file) {
+        file << name << " " << score << endl;
+        file.close();
+    }
+    else {
+        cout << "랭킹 저장 실패!\n";
+    }
+}
+
 /* 메뉴 출력 함수
 void drawMenu(int selected) {
     system("cls");
@@ -30,34 +80,36 @@ void drawMenu(int selected) {
 void drawMenu(int selected) {
     system("cls");
 
-    cout << "┌────────────────────────────────────────────┐\n";
-    cout << "│                                            │\n";
-    cout << "│      ######   ###   #     #  #####         │\n";
-    cout << "│      #       #   #  ##   ##  #             │\n";
-    cout << "│      #  ###  #####  # # # #  #####         │\n";
-    cout << "│      #   ##  #   #  #  #  #  #             │\n";
-    cout << "│      ######  #   #  #     #  #####         │\n";
-    cout << "│                                            │\n";
-    cout << "│      #     #  #####  #    #  #####         │\n";
-    cout << "│      ##   ##  #      ##   #  #             │\n";
-    cout << "│      # # # #  #####  # #  #  #####         │\n";
-    cout << "│      #  #  #  #      #  # #  #             │\n";
-    cout << "│      #     #  #####  #    #  #####         │\n";
-    cout << "│                                            │\n";
-    cout << "├──────────────── GAME MENU ─────────────────┤\n";
+    cout << "\n\n";
+    cout << "           ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\n";
+    cout << "          ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝\n";
+    cout << "          ██║     ██║   ██║██╔██╗ ██║█████╗  ██║   ██║██║     █████╗  \n";
+    cout << "          ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║   ██║██║     ██╔══╝  \n";
+    cout << "          ╚██████╗╚██████╔╝██║ ╚████║███████╗╚██████╔╝███████╗███████╗\n";
+    cout << "           ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚══════╝\n";
+    cout << "\n";
+    cout << "             ███████╗██╗   ██╗██████╗ ██╗   ██╗███████╗██╗     ██╗      \n";
+    cout << "             ██╔════╝██║   ██║██╔══██╗██║   ██║██╔════╝██║     ██║      \n";
+    cout << "             ███████╗██║   ██║██████╔╝██║   ██║█████╗  ██║     ██║      \n";
+    cout << "             ╚════██║██║   ██║██╔═══╝ ██║   ██║██╔══╝  ██║     ██║      \n";
+    cout << "             ███████║╚██████╔╝██║     ╚██████╔╝███████╗███████╗███████╗\n";
+    cout << "             ╚══════╝ ╚═════╝ ╚═╝      ╚═════╝ ╚══════╝╚══════╝╚══════╝\n";
+
+    cout << "\n";
+    cout << "        ┌───────────────────── MENU ─────────────────────┐\n";
 
     for (int i = 0; i < MENU_COUNT; ++i) {
-        cout << "│ ";
+        cout << "        │ ";
         if (i == selected) {
-            cout << ">> " << menuItems[i] << string(40 - menuItems[i].length(), ' ') << "│\n";
+            cout << "▶ " << menuItems[i] << string(45 - menuItems[i].length(), ' ') << "│\n";
         }
         else {
-            cout << "   " << menuItems[i] << string(40 - menuItems[i].length(), ' ') << "│\n";
+            cout << "   " << menuItems[i] << string(45 - menuItems[i].length(), ' ') << "│\n";
         }
     }
 
-    cout << "└────────────────────────────────────────────┘\n";
-    cout << "  ↑↓ 방향키로 이동, Enter로 선택하세요.\n";
+    cout << "        └───────────────────────────────────────────────┘\n";
+    cout << "            ↑↓ 방향키로 이동, Enter로 선택하세요.\n";
 }
 
 // 맵 출력 함수
@@ -92,6 +144,7 @@ void drawMap(int width, int height) {
 }
 
 int main() {
+    srand(time(0));
     const int width = 32;
     const int height = 16;
     int selected = 0;
@@ -114,10 +167,22 @@ int main() {
             if (selected == 0) {
                 cout << "게임을 시작합니다!\n";
                 drawMap(width, height);
+                string name;
+                int score;
+
+                cout << "플레이어 이름을 입력하세요: ";
+                cin >> name;
+
+                score = rand() % 100;  // 테스트용 랜덤 점수
+                cout << name << "님의 점수는 " << score << "점입니다.\n";
+
+                saveScore(name, score);
+
                 break;
             }
             else if (selected == 1) {
-                cout << "[게임 랭킹] 기능은 아직 구현되지 않았습니다.\n";
+                cout << "[게임 랭킹]\n";
+                showRanking();
             }
             else if (selected == 2) {
                 cout << "[게임 방법]\n";
