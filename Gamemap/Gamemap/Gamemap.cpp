@@ -26,6 +26,15 @@ bool compareByScore(const ScoreEntry& a, const ScoreEntry& b) {
     return a.score > b.score;  // 높은 점수 먼저
 }
 
+
+int getDisplayWidth(const string& text) {
+    int width = 0;
+    for (unsigned char ch : text) {
+        width += (ch & 0x80) ? 2 : 1;
+    }
+    return width;
+}
+
 void showRanking() {
     ifstream file("scores.txt");
     vector<ScoreEntry> rankings;
@@ -78,50 +87,41 @@ void drawMenu(int selected) {
     cout << "\n방향키 ↑↓로 이동, Enter로 선택하세요.\n";
 }
 */
-int getDisplayWidth(const string& text) {
-    int width = 0;
-    for (char ch : text) {
-        // 한글은 대부분 음수로 표현되는 멀티바이트 첫 바이트
-        width += (ch & 0x80) ? 2 : 1;
-    }
-    return width;
-}
-
 void drawMenu(int selected) {
     system("cls");
 
-    // 타이틀 출력 생략 (위 코드 유지)
-    cout << "\n\n";
-    cout << "           ██████╗ ██████╗ ███╗   ██╗███████╗ ██████╗ ██╗     ███████╗\n";
-    cout << "          ██╔════╝██╔═══██╗████╗  ██║██╔════╝██╔═══██╗██║     ██╔════╝\n";
-    cout << "          ██║     ██║   ██║██╔██╗ ██║█████╗  ██║   ██║██║     █████╗  \n";
-    cout << "          ██║     ██║   ██║██║╚██╗██║██╔══╝  ██║   ██║██║     ██╔══╝  \n";
-    cout << "          ╚██████╗╚██████╔╝██║ ╚████║███████╗╚██████╔╝███████╗███████╗\n";
-    cout << "           ╚═════╝ ╚═════╝ ╚═╝  ╚═══╝╚══════╝ ╚═════╝ ╚══════╝╚══════╝\n";
     cout << "\n";
-    cout << "             ███████╗██╗   ██╗██████╗ ██╗   ██╗███████╗██╗     ██╗      \n";
-    cout << "             ██╔════╝██║   ██║██╔══██╗██║   ██║██╔════╝██║     ██║      \n";
-    cout << "             ███████╗██║   ██║██████╔╝██║   ██║█████╗  ██║     ██║      \n";
-    cout << "             ╚════██║██║   ██║██╔═══╝ ██║   ██║██╔══╝  ██║     ██║      \n";
-    cout << "             ███████║╚██████╔╝██║     ╚██████╔╝███████╗███████╗███████╗\n";
-    cout << "             ╚══════╝ ╚═════╝ ╚═╝      ╚═════╝ ╚══════╝╚══════╝╚══════╝\n";
+    cout << R"(
+  _____                            _   _____                  _            _ 
+ /  __ \                          | | /  ___|                (_)          | |
+ | /  \/ ___  _ __  ___  ___   ___| | \ `--. _   _ _ ____   _____   ____ _| |
+ | |    / _ \| '_ \/ __|/ _ \ / _ \ |  `--. \ | | | '__\ \ / / \ \ / / _` | |
+ | \__/\ (_) | | | \__ \ (_) |  __/ | /\__/ / |_| | |   \ V /| |\ V / (_| | |
+  \____/\___/|_| |_|___/\___/ \___|_| \____/ \__,_|_|    \_/ |_| \_/ \__,_|_|
+                                                                             
+    )";
+
+    const int boxWidth = 58;  // 내부 폭
 
     cout << "\n";
     cout << "        ┌───────────────────── MENU ─────────────────────┐\n";
 
     for (int i = 0; i < MENU_COUNT; ++i) {
         cout << "        │ ";
-        string label = (i == selected) ? "▶ " + menuItems[i] : "  " + menuItems[i];
 
-        int displayWidth = getDisplayWidth(label);
-        int padding = 53 - displayWidth;  // 내부 출력 폭 기준
+        string label = (i == selected ? "> " : "  ") + menuItems[i];
 
-        cout << label << string(padding, ' ') << "│\n";
+        int width = getDisplayWidth(label);
+        int padding = boxWidth - width;
+
+        // 핵심: padding - 1 로 보정
+        cout << label << string(padding - 1, ' ') << "│\n";
     }
 
-    cout << "        └───────────────────────────────────────────────┘\n";
+    cout << "        └────────────────────────────────────────────────┘\n";
     cout << "            ↑↓ 방향키로 이동, Enter로 선택하세요.\n";
 }
+
 
 // 맵 출력 함수
 void drawMap(int width, int height) {
