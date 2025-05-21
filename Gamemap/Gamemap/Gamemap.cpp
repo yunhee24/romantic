@@ -35,6 +35,25 @@ int getDisplayWidth(const string& text) {
     return width;
 }
 
+void printGameInstructions() {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    cout << "[게임 방법]\n";
+
+    // 🔴 빨간색 설정
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+    cout << "- 키보드 ↑ ↓ ← → 방향키로 플레이어를 조작할 수 있습니다.\n";
+
+    // ⚪ 흰색(기본색) 복원
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    cout << "- 매 턴마다 랜덤으로 숫자가 부여되고, 해당 숫자만큼 이동할 수 있습니다.\n";
+    cout << "- 이동이 끝나면, 마지막으로 움직인 방향으로 자동으로 공격이 나갑니다.\n";
+    cout << "- 적의 공격은 **플레이어가 움직였을 때만** 동작합니다.\n";
+    cout << "  (즉, 플레이어가 가만히 있으면 적도 공격하지 않습니다!)\n";
+    cout << "- 제한된 시간 동안 몬스터를 처치하며 최대한 많은 점수를 획득하세요.\n";
+}
+
+
 void showRanking() {
     ifstream file("scores.txt");
     vector<ScoreEntry> rankings;
@@ -70,23 +89,6 @@ void saveScore(const string& name, int score) {
     }
 }
 
-/* 메뉴 출력 함수
-void drawMenu(int selected) {
-    system("cls");
-    cout << "========================\n";
-    cout << "      GAME MENU         \n";
-    cout << "========================\n";
-    for (int i = 0; i < MENU_COUNT; ++i) {
-        if (i == selected) {
-            cout << " > " << menuItems[i] << endl;
-        }
-        else {
-            cout << "   " << menuItems[i] << endl;
-        }
-    }
-    cout << "\n방향키 ↑↓로 이동, Enter로 선택하세요.\n";
-}
-*/
 void drawMenu(int selected) {
     system("cls");
 
@@ -114,8 +116,8 @@ void drawMenu(int selected) {
         int width = getDisplayWidth(label);
         int padding = boxWidth - width;
 
-        // 핵심: padding - 1 로 보정
-        cout << label << string(padding - 1, ' ') << "│\n";
+        // 핵심: padding - 3 로 보정
+        cout << label << string(padding - 3, ' ') << "│\n";
     }
 
     cout << "        └────────────────────────────────────────────────┘\n";
@@ -199,14 +201,14 @@ int main() {
                 showRanking();
             }
             else if (selected == 2) {
-                cout << "[게임 방법]\n";
-                cout << "- 방향키로 이동하세요.\n- 목표를 향해 나아가세요.\n";
+                printGameInstructions();
             }
+
             else if (selected == 3) {
                 cout << "게임을 종료합니다.\n";
                 return 0;
             }
-            cout << "\n아무 키나 누르면 메뉴로 돌아갑니다...\n";
+            cout << "\n아무 키나 누르면 메뉴로 돌아갑니다.\n";
             _getch();
         }
     }
