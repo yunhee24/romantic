@@ -50,9 +50,9 @@ void Player::attack(Monster* m) {
     for (int i = 0; i < 3; i++) {
         if (dx >= 9 && dx <= 26 && dy >= 3 && dy <= 20) {
             gotoxy(dx * 2, dy);
-            cout << "☆";
+            cout << "※";
             draw();
-            Sleep(100);
+            Sleep(120);
             gotoxy(dx * 2, dy);
             cout << " ";
             drawMapRe(32, 16);
@@ -76,45 +76,47 @@ void Player::attack(Monster* m) {
 }
 
 void Player::move(Monster* m) {
-    char input;
+    char in;
     draw();
 
     while (true) {
         if (_kbhit()) {
-            input = _getch();
-            remove();
+            in = _getch();
 
-            bool moved = false;
+            if (in == 0 || in == -32 || in == 224) {
+                in = _getch();
 
-            switch (input) {
-            case 'w': case 'W':
-                if (y > 5) { y--; moved = true; lastDir = UP; }
-                break;
-            case 's': case 'S':
-                if (y < 18) { y++; moved = true; lastDir = DOWN; }
-                break;
-            case 'a': case 'A':
-                if (x > 11) { x--; moved = true; lastDir = LEFT; }
-                break;
-            case 'd': case 'D':
-                if (x < 25) { x++; moved = true; lastDir = RIGHT; }
-                break;
-            case 'q': case 'Q':
-                return;
-            }
+                remove();
+                bool moved = false;
 
-            if (moved) {
-                moveCount++;
-                gotoxy(0, 6);
-                cout << "이동 " << moveCount << "   ";
-
-                if (moveCount == 4) {
-                    attack(m);
-                    moveCount = 0;
+                switch (in) {
+                case 72:
+                    if (y > 5) { y--; moved = true; lastDir = UP; }
+                    break;
+                case 80:
+                    if (y < 18) { y++; moved = true; lastDir = DOWN; }
+                    break;
+                case 75:
+                    if (x > 11) { x--; moved = true; lastDir = LEFT; }
+                    break;
+                case 77:
+                    if (x < 25) { x++; moved = true; lastDir = RIGHT; }
+                    break;
                 }
-            }
 
-            draw();
+                if (moved) {
+                    moveCount++;
+                    gotoxy(0, 6);
+                    cout << "이동 " << moveCount << "   ";
+
+                    if (moveCount == 4) {
+                        attack(m);
+                        moveCount = 0;
+                    }
+                }
+
+                draw();
+            }
         }
     }
 }

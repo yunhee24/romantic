@@ -1,10 +1,13 @@
 #include "player.h"
 #include "monster.h"
 #include "map.h"
+#include "Timer.h"
+#include <future>
 using namespace std;
 
-int main() {
 
+int main() {
+    
     CursorView();
 
     ingame();
