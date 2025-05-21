@@ -15,27 +15,42 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Monstercomplet.cpp">
-      <Filter>리소스 파일</Filter>
+    <ClCompile Include="CreateNEW.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
     <ClCompile Include="test.cpp">
-      <Filter>리소스 파일</Filter>
+      <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="PlayerMove.cpp">
-      <Filter>리소스 파일</Filter>
+    <ClCompile Include="Mutex_test.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
-    <ClCompile Include="Monster.cpp">
-      <Filter>리소스 파일</Filter>
+    <ClCompile Include="H_player.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="H_map.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="H_main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="H_Monster.cpp">
+      <Filter>소스 파일</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="player.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="DrawMap.h">
+    <ClInclude Include="gotoxy.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
-    <ClInclude Include="gotoxy.h">
+    <ClInclude Include="Map.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="H_map.h">
+      <Filter>헤더 파일</Filter>
+    </ClInclude>
+    <ClInclude Include="H_Monster.h">
       <Filter>헤더 파일</Filter>
     </ClInclude>
   </ItemGroup>

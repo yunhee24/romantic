@@ -1,6 +1,6 @@
 #pragma once
 #include <windows.h>
-inline void gotoxy(int x, int y) {
-    COORD pos = { x, y };
+inline void gotoxy(SHORT x, SHORT y) {
+    COORD pos = { (SHORT)x, (SHORT)y };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
 }
