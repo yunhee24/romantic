@@ -5,7 +5,6 @@
 #include <future>
 using namespace std;
 
-
 int main() {
     
     CursorView();
