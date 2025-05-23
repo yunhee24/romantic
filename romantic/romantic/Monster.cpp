@@ -1,4 +1,5 @@
 #include "monster.h"
+#include "player.h"
 #include <iostream>
 #include <windows.h>
 using namespace std;
