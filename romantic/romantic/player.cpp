@@ -24,6 +24,18 @@ Player::Player() {
     score = 0;
 }
 
+void Player::setName(const string& playerName) {
+    name = playerName;
+}
+
+string Player::getName() const {
+    return name;
+}
+
+int Player::getScore() const {
+    return score;
+}
+
 void Player::draw() {
     gotoxy(x * 2, y);
     cout << "¡Ï";

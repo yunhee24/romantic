@@ -1,108 +1,198 @@
-#include "map.h"
+Ôªø#include "map.h"
 #include "player.h"
 
 const int MENU_COUNT = 4;
 const string menuItems[MENU_COUNT] = {
-    "∞‘¿” Ω√¿€",
-    "∞‘¿” ∑©≈∑",
-    "∞‘¿” πÊπ˝",
-    "∞‘¿” ¡æ∑·"
+    "Í≤åÏûÑ ÏãúÏûë",
+    "Í≤åÏûÑ Îû≠ÌÇπ",
+    "Í≤åÏûÑ Î∞©Î≤ï",
+    "Í≤åÏûÑ Ï¢ÖÎ£å"
 };
 
-// Ω√¿€ ∏ﬁ¥∫ √‚∑¬
+struct Scorein {
+    string name;
+    int score;
+};
+
+bool compareByScore(const Scorein& a, const Scorein& b) {
+    return a.score > b.score;  // ÎÜíÏùÄ Ï†êÏàò Î®ºÏ†Ä
+}
+
+int getDisplayWidth(const string& text) {
+    int width = 0;
+    for (unsigned char ch : text) {
+        width += (ch & 0x80) ? 2 : 1;
+    }
+    return width;
+}
+
+void printGameInstructions() {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
+    cout << "[Í≤åÏûÑ Î∞©Î≤ï]\n";
+
+    // üî¥ Îπ®Í∞ÑÏÉâ ÏÑ§Ï†ï
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
+    cout << "- ÌÇ§Î≥¥Îìú ‚Üë ‚Üì ‚Üê ‚Üí Î∞©Ìñ•ÌÇ§Î°ú ÌîåÎ†àÏù¥Ïñ¥Î•º Ï°∞ÏûëÌï† Ïàò ÏûàÏäµÎãàÎã§.\n";
+
+    // ‚ö™ Ìù∞ÏÉâ(Í∏∞Î≥∏ÏÉâ) Î≥µÏõê
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
+    cout << "- Îß§ ÌÑ¥ÎßàÎã§ ÎûúÎç§ÏúºÎ°ú Ïà´ÏûêÍ∞Ä Î∂ÄÏó¨ÎêòÍ≥†, Ìï¥Îãπ Ïà´ÏûêÎßåÌÅº Ïù¥ÎèôÌï† Ïàò ÏûàÏäµÎãàÎã§.\n";
+    cout << "- Ïù¥ÎèôÏù¥ ÎÅùÎÇòÎ©¥, ÎßàÏßÄÎßâÏúºÎ°ú ÏõÄÏßÅÏù∏ Î∞©Ìñ•ÏúºÎ°ú ÏûêÎèôÏúºÎ°ú Í≥µÍ≤©Ïù¥ ÎÇòÍ∞ëÎãàÎã§.\n";
+    cout << "- Ï†ÅÏùò Í≥µÍ≤©ÏùÄ **ÌîåÎ†àÏù¥Ïñ¥Í∞Ä ÏõÄÏßÅÏòÄÏùÑ ÎïåÎßå** ÎèôÏûëÌï©ÎãàÎã§.\n";
+    cout << "  (Ï¶â, ÌîåÎ†àÏù¥Ïñ¥Í∞Ä Í∞ÄÎßåÌûà ÏûàÏúºÎ©¥ Ï†ÅÎèÑ Í≥µÍ≤©ÌïòÏßÄ ÏïäÏäµÎãàÎã§!)\n";
+    cout << "- Ï†úÌïúÎêú ÏãúÍ∞Ñ ÎèôÏïà Î™¨Ïä§ÌÑ∞Î•º Ï≤òÏπòÌïòÎ©∞ ÏµúÎåÄÌïú ÎßéÏùÄ Ï†êÏàòÎ•º ÌöçÎìùÌïòÏÑ∏Ïöî.\n";
+}
+
+void showRanking() {
+    ifstream file("scores.txt");
+    vector<Scorein> rankings;
+
+    if (!file) {
+        cout << "Îû≠ÌÇπ ÌååÏùºÏù¥ ÏóÜÏäµÎãàÎã§.\n";
+        return;
+    }
+
+    string name;
+    int score;
+    while (file >> name >> score) {
+        rankings.push_back({ name, score });
+    }
+    file.close();
+
+    sort(rankings.begin(), rankings.end(), compareByScore);
+
+    cout << "===== Í≤åÏûÑ Îû≠ÌÇπ =====\n";
+    for (size_t i = 0; i < rankings.size(); ++i) {
+        cout << i + 1 << ". " << rankings[i].name << " - " << rankings[i].score << endl;
+    }
+}
+
+/*
+Ï†ÄÏû• Ïã§Ìå® Ï≤òÎ¶¨??
+
+void saveScore(const string& name, int score) {
+    ofstream file("scores.txt", ios::app);  // append Î™®Îìú
+    if (file) {
+        file << name << " " << score << endl;
+        file.close();
+    }
+    else {
+        cout << "Îû≠ÌÇπ Ï†ÄÏû• Ïã§Ìå®!\n";
+    }
+}
+*/
+
+// ÏãúÏûë Î©îÎâ¥ Ï∂úÎ†•
 void drawMenu(int selected) {
     system("cls");
 
-    cout << "¶£¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶§\n";
-    cout << "¶¢                                            ¶¢\n";
-    cout << "¶¢      ######   ###   #     #  #####         ¶¢\n";
-    cout << "¶¢      #       #   #  ##   ##  #             ¶¢\n";
-    cout << "¶¢      #  ###  #####  # # # #  #####         ¶¢\n";
-    cout << "¶¢      #   ##  #   #  #  #  #  #             ¶¢\n";
-    cout << "¶¢      ######  #   #  #     #  #####         ¶¢\n";
-    cout << "¶¢                                            ¶¢\n";
-    cout << "¶¢      #     #  #####  #    #  #####         ¶¢\n";
-    cout << "¶¢      ##   ##  #      ##   #  #             ¶¢\n";
-    cout << "¶¢      # # # #  #####  # #  #  #####         ¶¢\n";
-    cout << "¶¢      #  #  #  #      #  # #  #             ¶¢\n";
-    cout << "¶¢      #     #  #####  #    #  #####         ¶¢\n";
-    cout << "¶¢                                            ¶¢\n";
-    cout << "¶ß¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶° GAME MENU ¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶©\n";
+    cout << "\n";
+    cout << R"(
+  _____                            _   _____                  _            _ 
+ /  __ \                          | | /  ___|                (_)          | |
+ | /  \/ ___  _ __  ___  ___   ___| | \ `--. _   _ _ ____   _____   ____ _| |
+ | |    / _ \| '_ \/ __|/ _ \ / _ \ |  `--. \ | | | '__\ \ / / \ \ / / _` | |
+ | \__/\ (_) | | | \__ \ (_) |  __/ | /\__/ / |_| | |   \ V /| |\ V / (_| | |
+  \____/\___/|_| |_|___/\___/ \___|_| \____/ \__,_|_|    \_/ |_| \_/ \__,_|_|
+                                                                             
+    )";
+
+    const int boxWidth = 58;  // ÎÇ¥Î∂Ä Ìè≠
+
+    cout << "\n";
+    cout << "        ‚îå‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ MENU ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îê\n";
 
     for (int i = 0; i < MENU_COUNT; ++i) {
-        cout << "¶¢ ";
-        if (i == selected) {
-            cout << ">> " << menuItems[i] << string(40 - menuItems[i].length(), ' ') << "¶¢\n";
-        }
-        else {
-            cout << "   " << menuItems[i] << string(40 - menuItems[i].length(), ' ') << "¶¢\n";
-        }
+        cout << "        ‚îÇ ";
+
+        string label = (i == selected ? "> " : "  ") + menuItems[i];
+
+        int width = getDisplayWidth(label);
+        int padding = boxWidth - width;
+
+        // ÌïµÏã¨: padding - 3 Î°ú Î≥¥Ï†ï
+        cout << label << string(padding - 3, ' ') << "‚îÇ\n";
     }
 
-    cout << "¶¶¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶°¶•\n";
-    cout << "  °Ë°È πÊ«‚≈∞∑Œ ¿Ãµø, Enter∑Œ º±≈√«œººø‰.\n";
+    cout << "        ‚îî‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îò\n";
+    cout << "            ‚Üë‚Üì Î∞©Ìñ•ÌÇ§Î°ú Ïù¥Îèô, EnterÎ°ú ÏÑ†ÌÉùÌïòÏÑ∏Ïöî.\n";
 }
 
-// ∏  √‚∑¬
+// Îßµ Ï∂úÎ†•
 void drawMap(int width, int height) {
-    int offsetX = 20; // ∞°∑Œ ¿ßƒ° ¡∂¡§ (∞¯πÈ)
-    int offsetY = 3;  // ºº∑Œ ¿ßƒ° ¡∂¡§ (¡ŸπŸ≤ﬁ)
+    int offsetX = 20; // Í∞ÄÎ°ú ÏúÑÏπò Ï°∞Ï†ï (Í≥µÎ∞±)
+    int offsetY = 3;  // ÏÑ∏Î°ú ÏúÑÏπò Ï°∞Ï†ï (Ï§ÑÎ∞îÍøà)
 
-    // ¿ß∑Œ ∞¯πÈ ¡Ÿ ª¿‘
+    // ÏúÑÎ°ú Í≥µÎ∞± Ï§Ñ ÏÇΩÏûÖ
     for (int i = 0; i < offsetY; ++i) {
         cout << endl;
     }
 
     for (int y = 0; y < height; ++y) {
-        // øﬁ¬ ¿∏∑Œ ∞¯πÈ ª¿‘
+        // ÏôºÏ™ΩÏúºÎ°ú Í≥µÎ∞± ÏÇΩÏûÖ
         for (int i = 0; i < offsetX; ++i) {
             cout << " ";
         }
 
         for (int x = 0; x < width; ++x) {
-            if (y == 0 && x == 0) cout << "¶£";
-            else if (y == 0 && x == width - 1) cout << "¶§";
-            else if (y == height - 1 && x == 0) cout << "¶¶";
-            else if (y == height - 1 && x == width - 1) cout << "¶•";
-            else if (y == 0 || y == height - 1) cout << "¶°";
-            else if (x == 0 || x == width - 1) cout << "¶¢";
+            if (y == 0 && x == 0) cout << "‚îå";
+            else if (y == 0 && x == width - 1) cout << "‚îê";
+            else if (y == height - 1 && x == 0) cout << "‚îî";
+            else if (y == height - 1 && x == width - 1) cout << "‚îò";
+            else if (y == 0 || y == height - 1) cout << "‚îÄ";
+            else if (x == 0 || x == width - 1) cout << "‚îÇ";
             else cout << " ";
         }
-
         cout << endl;
     }
-
     cout << endl;
 }
 
-// ∏  ¿Á√‚∑¬
+// Îßµ Ïû¨Ï∂úÎ†•
 void drawMapRe(int width, int height) {
     int offsetX = 20;
     int offsetY = 4;
 
     for (int x = 0; x < width; ++x) {
         gotoxy(offsetX + x, offsetY + 0);
-        if (x == 0) cout << "¶£";
-        else if (x == width - 1) cout << "¶§";
-        else cout << "¶°";
+        if (x == 0) cout << "‚îå";
+        else if (x == width - 1) cout << "‚îê";
+        else cout << "‚îÄ";
     }
 
     for (int x = 0; x < width; ++x) {
         gotoxy(offsetX + x, offsetY + height - 1);
-        if (x == 0) cout << "¶¶";
-        else if (x == width - 1) cout << "¶•";
-        else cout << "¶°";
+        if (x == 0) cout << "‚îî";
+        else if (x == width - 1) cout << "‚îò";
+        else cout << "‚îÄ";
     }
 
     for (int y = 1; y < height - 1; ++y) {
         gotoxy(offsetX + 0, offsetY + y);
-        cout << "¶¢";
+        cout << "‚îÇ";
         gotoxy(offsetX + width - 1, offsetY + y);
-        cout << "¶¢";
+        cout << "‚îÇ";
     }
 }
 
+// ‚ÜìÏù¥ Ìï®Ïàò Ï∂úÎ†• ÌõÑ Í≤åÏûÑÏù¥ ÏãúÏûëÎêòÎ©¥ ÏïàÎú®Í≤å Í≥†Ï≥êÏïºÌï®.
+void User(Player& p) {
+    system("cls");
+    const int width = 32;
+    const int height = 16;
+
+    cout << "\n";
+    drawMap(width, height);
+
+    cout << "ÌîåÎ†àÏù¥Ïñ¥ Ïù¥Î¶ÑÏùÑ ÏûÖÎ†•ÌïòÏÑ∏Ïöî: ";
+    cin >> p.name;
+
+    p.score = 0;  // Ï¥àÍ∏∞ Ï†êÏàò ÏÑ§Ï†ï
+}
+
 int ingame() {
+    srand(time(0));
     const int width = 32;
     const int height = 16;
     int selected = 0;
@@ -111,36 +201,43 @@ int ingame() {
         drawMenu(selected);
         int key = _getch();
 
-        if (key == 224) {  // πÊ«‚≈∞ ¿‘∑¬ Ω√
+        if (key == 224) {
             key = _getch();
-            if (key == 72 && selected > 0) { // °Ë
-                --selected;
-            }
-            else if (key == 80 && selected < MENU_COUNT - 1) { // °È
-                ++selected;
-            }
+            if (key == 72 && selected > 0) --selected;
+            else if (key == 80 && selected < MENU_COUNT - 1) ++selected;
         }
-        else if (key == 13) { // Enter ¿‘∑¬ Ω√
+
+        else if (key == 13) {
             system("cls");
             if (selected == 0) {
-                cout << "\n";
-                drawMap(width, height);
+                Player tempPlayer;
+                //User(tempPlayer);     // Îëê Î≤à Ï∂úÎ†•
                 break;
             }
             else if (selected == 1) {
-                cout << "[∞‘¿” ∑©≈∑] ±‚¥…¿∫ æ∆¡˜ ±∏«ˆµ«¡ˆ æ æ“Ω¿¥œ¥Ÿ.\n";
+                cout << "[Í≤åÏûÑ Îû≠ÌÇπ]\n";
+                showRanking();
             }
             else if (selected == 2) {
-                cout << "[∞‘¿” πÊπ˝]\n";
-                cout << "- πÊ«‚≈∞∑Œ ¿Ãµø«œººø‰.\n- ∏Ò«•∏¶ «‚«ÿ ≥™æ∆∞°ººø‰.\n";
+                printGameInstructions();
             }
             else if (selected == 3) {
-                cout << "∞‘¿”¿ª ¡æ∑·«’¥œ¥Ÿ.\n";
+                cout << "Í≤åÏûÑÏùÑ Ï¢ÖÎ£åÌï©ÎãàÎã§.\n";
                 return 0;
             }
-            cout << "\næ∆π´ ≈∞≥™ ¥©∏£∏È ∏ﬁ¥∫∑Œ µπæ∆∞©¥œ¥Ÿ...\n";
+
+            cout << "\nÏïÑÎ¨¥ ÌÇ§ÎÇò ÎàÑÎ•¥Î©¥ Î©îÎâ¥Î°ú ÎèåÏïÑÍ∞ëÎãàÎã§.\n";
             _getch();
         }
     }
+
     return 0;
+}
+
+void saveScore(const string& name, int score) {
+    ofstream file("scores.txt", ios::app);
+    if (file.is_open()) {
+        file << name << " " << score << "\n";
+        file.close();
+    }
 }
