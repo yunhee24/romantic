@@ -1,7 +1,6 @@
 #include "player.h"
 #include "monster.h"
 #include "map.h"
-#include "Timer.h"
 #include <future>
 using namespace std;
 

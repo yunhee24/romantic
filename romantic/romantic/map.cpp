@@ -176,7 +176,6 @@ void drawMapRe(int width, int height) {
     }
 }
 
-// ↓이 함수 출력 후 게임이 시작되면 안뜨게 고쳐야함.
 void User(Player& p) {
     system("cls");
     const int width = 32;

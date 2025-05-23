@@ -1,5 +1,5 @@
 #include <iostream>
-#include "timer.h" 
+#include "player.h"
 #include <conio.h>  // _getch() 함수 사용
 #include <windows.h>  // system("cls") 및 콘솔 색상 설정
 #include <fstream>  // 파일 입출력
