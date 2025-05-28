@@ -1,5 +1,12 @@
 ﻿#include "map.h"
 #include "player.h"
+#include "monster.h"
+
+// 커서 위치 조정
+void setCursorPosition(int x, int y) {
+    COORD pos = { static_cast<SHORT>(x), static_cast<SHORT>(y) };
+    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
+}
 
 const int MENU_COUNT = 4;
 const string menuItems[MENU_COUNT] = {
@@ -26,6 +33,7 @@ int getDisplayWidth(const string& text) {
     return width;
 }
 
+// 게임 방법 출력
 void printGameInstructions() {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
@@ -44,6 +52,7 @@ void printGameInstructions() {
     cout << "- 제한된 시간 동안 몬스터를 처치하며 최대한 많은 점수를 획득하세요.\n";
 }
 
+// 랭킹 출력
 void showRanking() {
     ifstream file("scores.txt");
     vector<Scorein> rankings;
@@ -152,7 +161,7 @@ void drawMap(int width, int height) {
 // 맵 재출력
 void drawMapRe(int width, int height) {
     int offsetX = 20;
-    int offsetY = 4;
+    int offsetY = 3;
 
     for (int x = 0; x < width; ++x) {
         gotoxy(offsetX + x, offsetY + 0);
@@ -176,22 +185,52 @@ void drawMapRe(int width, int height) {
     }
 }
 
+// 유저 정보 입력
 void User(Player& p) {
-    system("cls");
-    const int width = 32;
-    const int height = 16;
+    int x = 0, y = 0;
 
-    cout << "\n";
-    drawMap(width, height);
+    // 현재 커서 위치 저장
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    x = csbi.dwCursorPosition.X;
+    y = csbi.dwCursorPosition.Y;
 
-    cout << "플레이어 이름을 입력하세요: ";
-    cin >> p.name;
+    // 입력 메시지 출력
+    cout << "플레이어 이름을 입력하세요 : ";
+    getline(cin, p.name);
 
-    p.score = 0;  // 초기 점수 설정
+    // 입력 메시지 삭제
+    setCursorPosition(x, y);
+    cout << string(50, ' ');
+    setCursorPosition(x, y);
 }
 
+// 움직임 횟수 랜덤 부여
+void moveNumber(Player& p) {
+    int x = 0, y = 0;
+
+    // 현재 커서 위치 저장
+    CONSOLE_SCREEN_BUFFER_INFO csbi;
+    GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
+    x = csbi.dwCursorPosition.X;
+    y = csbi.dwCursorPosition.Y;
+
+    srand(static_cast<unsigned int>(std::time(nullptr)));
+
+    cout << "엔터를 눌러주세요.\n";
+    cin.get();
+
+    p.randNumber = std::rand() % 8 + 1; // Player의 멤버 변수에 저장
+    cout << "랜덤 숫자: " << p.randNumber << "\n";
+
+    // 입력 메시지 삭제
+    setCursorPosition(x, y);
+    cout << string(60, ' ');
+    setCursorPosition(x, y);
+}
+
+// 인게임 메인 함수
 int ingame() {
-    srand(time(0));
     const int width = 32;
     const int height = 16;
     int selected = 0;
@@ -205,16 +244,30 @@ int ingame() {
             if (key == 72 && selected > 0) --selected;
             else if (key == 80 && selected < MENU_COUNT - 1) ++selected;
         }
-
         else if (key == 13) {
             system("cls");
             if (selected == 0) {
-                Player tempPlayer;
-                //User(tempPlayer);     // 두 번 출력
+
+                Player p;
+                User(p);  // 이름 입력
+
+                moveNumber(p);
+                
+                drawMap(width, height);
+
+                Monster m(12, 2);
+                m.draw();
+                p.move(&m);
+
+                if (p.score >= 1) {
+                    saveScore(p);
+                    cout << "\n점수: " << p.score << endl;
+                    _getch();
+                }
                 break;
+                
             }
             else if (selected == 1) {
-                cout << "[게임 랭킹]\n";
                 showRanking();
             }
             else if (selected == 2) {
@@ -233,10 +286,10 @@ int ingame() {
     return 0;
 }
 
-void saveScore(const string& name, int score) {
+void saveScore(const Player& player) {
     ofstream file("scores.txt", ios::app);
     if (file.is_open()) {
-        file << name << " " << score << "\n";
+        file << player.name << " " << player.score << "\n";
         file.close();
     }
 }

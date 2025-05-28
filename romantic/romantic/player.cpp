@@ -17,19 +17,11 @@ void gotoxy(int x, int y) {
 }
 
 Player::Player() {
-    x = 11;
-    y = 5;
+    x = 18;
+    y = 10;
     moveCount = 0;
     lastDir = NONE;
     score = 0;
-}
-
-void Player::setName(const string& playerName) {
-    name = playerName;
-}
-
-string Player::getName() const {
-    return name;
 }
 
 int Player::getScore() const {
@@ -46,6 +38,7 @@ void Player::remove() {
     cout << " ";
 }
 
+// 플레이어 공격
 void Player::attack(Monster* m) {
     int tx = x, ty = y;
 
@@ -59,8 +52,8 @@ void Player::attack(Monster* m) {
 
     int dx = tx, dy = ty;
 
-    for (int i = 0; i < 3; i++) {
-        if (dx >= 9 && dx <= 26 && dy >= 3 && dy <= 20) {
+    for (int i = 1; i < 3; i++) {
+        if (dx >= 6 && dx <= 26 && dy >= 2 && dy <= 20) {
             gotoxy(dx * 2, dy);
             cout << "※";
             draw();
@@ -87,6 +80,7 @@ void Player::attack(Monster* m) {
     }
 }
 
+// 플레이어 움직임
 void Player::move(Monster* m) {
     char in;
     draw();
@@ -103,10 +97,10 @@ void Player::move(Monster* m) {
 
                 switch (in) {
                 case 72:
-                    if (y > 5) { y--; moved = true; lastDir = UP; }
+                    if (y > 4) { y--; moved = true; lastDir = UP; }
                     break;
                 case 80:
-                    if (y < 18) { y++; moved = true; lastDir = DOWN; }
+                    if (y < 17) { y++; moved = true; lastDir = DOWN; }
                     break;
                 case 75:
                     if (x > 11) { x--; moved = true; lastDir = LEFT; }
@@ -116,12 +110,13 @@ void Player::move(Monster* m) {
                     break;
                 }
 
+                // 움직임 횟수
                 if (moved) {
                     moveCount++;
                     gotoxy(0, 6);
                     cout << "이동 " << moveCount << "   ";
 
-                    if (moveCount == 4) {
+                    if (moveCount == randNumber) {
                         attack(m);
                         moveCount = 0;
                     }

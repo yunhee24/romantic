@@ -1,8 +1,0 @@
-ddd 48
-eeee 85
-ff 4
-ff 16
-dd 14
-yunhee 25
-gg 66
-dd 63
