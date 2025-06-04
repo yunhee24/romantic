@@ -1,35 +1,28 @@
 #include <iostream>
+#include "player.h"
 #include <conio.h>  // _getch() 함수 사용
 #include <windows.h>  // system("cls") 및 콘솔 색상 설정
+#include <fstream>  // 파일 입출력
+#include <vector>
+#include <algorithm>  // sort
+#include <ctime>
+#include <string>
+
 using namespace std;
 
+enum map_pos {   // 맵 좌표
+    MAP_LEFT = 20,
+    MAP_RIGHT = 47,
+    MAP_TOP = 3,
+    MAP_BOTTOM = 18
+};
 
-// 맵 출력 함수
-void drawMap(int width, int height) {
-    int offsetX = 20; // 가로 위치 조정 (공백)
-    int offsetY = 4;  // 세로 위치 조정 (줄바꿈)
+void setCursorPosition(int x, int y);	// 커서 위치 조정
+void drawMenu(int selected);			// 시작 메뉴 출력
+void drawMap(int width, int height);	// 맵 출력
+int ingame();							// 인게임 메인 출력
+void drawMapRe(int width, int height);	// 맵 재출력
+void moveNumber(Player& p);
 
-    // 위로 공백 줄 삽입
-    for (int i = 0; i < offsetY; ++i) {
-        cout << endl;
-    }
-
-    for (int y = 0; y < height; ++y) {
-        // 왼쪽으로 공백 삽입
-        for (int i = 0; i < offsetX; ++i) {
-            cout << " ";
-        }
-
-        for (int x = 0; x < width; ++x) {
-            if (y == 0 && x == 0) cout << "┌";
-            else if (y == 0 && x == width - 1) cout << "┐";
-            else if (y == height - 1 && x == 0) cout << "└";
-            else if (y == height - 1 && x == width - 1) cout << "┘";
-            else if (y == 0 || y == height - 1) cout << "─";
-            else if (x == 0 || x == width - 1) cout << "│";
-            else cout << " ";
-        }
-        cout << endl;
-    }
-    cout << endl;
-}
+void User(Player& p);					// 유저 정보 입력
+void saveScore(const Player& player);	// 점수 저장  Player 클래스.score
