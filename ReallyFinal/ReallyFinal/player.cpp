@@ -11,6 +11,7 @@ Player::Player() {
     moveCount = 0;
     lastDir = NONE;
     score = 0;
+    hp = 3; // ì´ˆê¸° ì²´ë ¥ ì„¤ì •
 }
 
 int Player::getScore() const {
@@ -20,13 +21,24 @@ int Player::getScore() const {
 void Player::draw() {
     std::lock_guard<std::mutex> lock(output_mutex);
     gotoxy(x * 2, y);
-    cout << "¡Ï";
+    cout << "â™€";
 }
 
 void Player::remove() {
     std::lock_guard<std::mutex> lock(output_mutex);
     gotoxy(x * 2, y);
     cout << "  ";
+}
+
+void Player::decreaseHP() {
+    hp--;
+    std::lock_guard<std::mutex> lock(output_mutex);
+    gotoxy(60, 2);
+    cout << "ì²´ë ¥: " << hp << "  ";
+}
+
+int Player::getHP() const {
+    return hp;
 }
 
 void Player::attack(std::vector<Monster>& monsters) {
@@ -40,38 +52,35 @@ void Player::attack(std::vector<Monster>& monsters) {
     }
 
     int dx = tx, dy = ty;
-
-    string at = "¡Ø";
-
     for (int i = 1; i < 6; i++) {
         if (dx >= 6 && dx <= 26 && dy >= 2 && dy <= 20) {
             {
-                lock_guard<mutex> lock(output_mutex);
+                std::lock_guard<std::mutex> lock(output_mutex);
                 gotoxy(dx * 2, dy);
-                cout << at;
+                cout << "â€»";
             }
             draw();
             Sleep(120);
             {
-                lock_guard<mutex> lock(output_mutex);
+                std::lock_guard<std::mutex> lock(output_mutex);
                 gotoxy(dx * 2, dy);
                 cout << "  ";
             }
             drawMapRe(32, 16);
 
             for (auto& m : monsters) {
-                if (m.alive && (m.x / 2) == dx && m.y == dy) {
+                if (m.alive && (m.x/2) == dx && m.y == dy) {
                     m.alive = false;
                     score++;
                     {
-                        //std::lock_guard<std::mutex> lock(output_mutex);
-                        gotoxy(0, 4);  //0, 12
-                        cout << "Á¡¼ö: " << score << "  ";
+                        std::lock_guard<std::mutex> lock(output_mutex);
+                        gotoxy(60, 1);
+                        cout << "ì ìˆ˜: " << score << "  ";
 
-                        gotoxy(m.x, m.y); //¸ó½ºÅÍ »èÁ¦
+                        gotoxy(m.x * 2, m.y);
                         cout << "  ";
                     }
-                    //break;
+                    break;
                 }
             }
         }
@@ -104,8 +113,8 @@ void Player::move(std::vector<Monster>& monsters) {
                     moveCount++;
                     {
                         std::lock_guard<std::mutex> lock(output_mutex);
-                        gotoxy(0, 1);
-                        cout << "ÀÌµ¿ " << moveCount << "   ";
+                        gotoxy(0, 6);
+                        cout << "ì´ë™ " << moveCount << "   ";
                     }
                     if (moveCount == randNumber) {
                         attack(monsters);
