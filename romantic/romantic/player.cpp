@@ -57,7 +57,7 @@ void Player::attack(Monster* m) {
             gotoxy(dx * 2, dy);
             cout << "※";
             draw();
-            Sleep(120);
+            Sleep(300);
             gotoxy(dx * 2, dy);
             cout << " ";
             drawMapRe(32, 16);
@@ -113,7 +113,7 @@ void Player::move(Monster* m) {
                 // 움직임 횟수
                 if (moved) {
                     moveCount++;
-                    gotoxy(0, 6);
+                    gotoxy(0, 3);
                     cout << "이동 " << moveCount << "   ";
 
                     if (moveCount == randNumber) {

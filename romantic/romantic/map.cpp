@@ -9,6 +9,7 @@ void setCursorPosition(int x, int y) {
 }
 
 const int MENU_COUNT = 4;
+
 const string menuItems[MENU_COUNT] = {
     "게임 시작",
     "게임 랭킹",
@@ -37,23 +38,33 @@ int getDisplayWidth(const string& text) {
 void printGameInstructions() {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    cout << "[게임 방법]\n";
+    cout << "\n\n";
+    cout << R"(
+               ____                        ____       _           
+              / ___| __ _ _ __ ___   ___  | _  \_   _| | ___  ___ 
+             | |  _ / _` | '_ ` _ \ / _ \ | |) | | | | |/ _ \/ __|
+             | |_| | (_| | | | | | |  __/ | _ <| |_| | |  __/\__ \
+              \____|\__,_|_| |_| |_|\___| |_|\__\___,|_|\___|\___|                                                                      
+    )";
+    cout << "                            > 게임 방법 <";
+    cout << "\n\n\n\n";
+
 
     // 🔴 빨간색 설정
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
-    cout << "- 키보드 ↑ ↓ ← → 방향키로 플레이어를 조작할 수 있습니다.\n";
+    cout << "   - 키보드 ↑ ↓ ← → 방향키로 플레이어를 조작할 수 있습니다.\n";
 
     // ⚪ 흰색(기본색) 복원
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-    cout << "- 매 턴마다 랜덤으로 숫자가 부여되고, 해당 숫자만큼 이동할 수 있습니다.\n";
-    cout << "- 이동이 끝나면, 마지막으로 움직인 방향으로 자동으로 공격이 나갑니다.\n";
-    cout << "- 적의 공격은 **플레이어가 움직였을 때만** 동작합니다.\n";
-    cout << "  (즉, 플레이어가 가만히 있으면 적도 공격하지 않습니다!)\n";
-    cout << "- 제한된 시간 동안 몬스터를 처치하며 최대한 많은 점수를 획득하세요.\n";
+    cout << "   - 매 턴마다 랜덤으로 숫자가 부여되고, 해당 숫자만큼 이동할 수 있습니다.\n";
+    cout << "   - 이동이 끝나면, 마지막으로 움직인 방향으로 자동으로 공격이 나갑니다.\n";
+    cout << "   - 적의 공격은 **플레이어가 움직였을 때만** 동작합니다.\n";
+    cout << "     (즉, 플레이어가 가만히 있으면 적도 공격하지 않습니다!)\n";
+    cout << "   - 제한된 시간 동안 몬스터를 처치하며 최대한 많은 점수를 획득하세요.\n";
 }
 
 // 랭킹 출력
-void showRanking() {
+void showRanking(Player &p) {
     ifstream file("scores.txt");
     vector<Scorein> rankings;
 
@@ -62,16 +73,36 @@ void showRanking() {
         return;
     }
 
-    string name;
-    int score;
-    while (file >> name >> score) {
-        rankings.push_back({ name, score });
+    //string name;
+    //int score;
+
+    while (file >> p.name >> p.score) {
+        rankings.push_back({ p.name, p.score });
     }
     file.close();
 
     sort(rankings.begin(), rankings.end(), compareByScore);
 
-    cout << "===== 게임 랭킹 =====\n";
+    cout << "\n\n";
+    cout << R"(
+                      ___             _     _  
+                     | _ \ __ _ _ __ | | __|_|_ __  _____ 
+                     | |) / _` | '_ \| |/ / _| '_ \/  _  \
+                     | _ < (_| | | | |   < | | | | | |_| |
+                     |_|\_\__,_|_| |_|_|\_\|_|_| |_|\__, |
+                                                    |___/ 
+    )";
+    cout << "\n                                > 게임 랭킹 <";
+    cout << "\n              ------------------------------------------------";
+    cout << "\n                    1. JunSeo 17";
+    cout << "\n                    2. KYI 8";
+    cout << "\n                    3. Professor Joe 1";
+    cout << "\n                    4. ";
+    cout << "\n                    5. ";
+    cout << "\n\n\n";
+
+
+    
     for (size_t i = 0; i < rankings.size(); ++i) {
         cout << i + 1 << ". " << rankings[i].name << " - " << rankings[i].score << endl;
     }
@@ -96,7 +127,7 @@ void saveScore(const string& name, int score) {
 void drawMenu(int selected) {
     system("cls");
 
-    cout << "\n";
+    cout << "\n\n\n";
     cout << R"(
   _____                            _   _____                  _            _ 
  /  __ \                          | | /  ___|                (_)          | |
@@ -109,11 +140,11 @@ void drawMenu(int selected) {
 
     const int boxWidth = 58;  // 내부 폭
 
-    cout << "\n";
-    cout << "        ┌───────────────────── MENU ─────────────────────┐\n";
+    cout << "\n\n\n\n";
+    cout << "               ┌───────────────────── MENU ─────────────────────┐\n";
 
     for (int i = 0; i < MENU_COUNT; ++i) {
-        cout << "        │ ";
+        cout << "               │ ";
 
         string label = (i == selected ? "> " : "  ") + menuItems[i];
 
@@ -124,8 +155,8 @@ void drawMenu(int selected) {
         cout << label << string(padding - 3, ' ') << "│\n";
     }
 
-    cout << "        └────────────────────────────────────────────────┘\n";
-    cout << "            ↑↓ 방향키로 이동, Enter로 선택하세요.\n";
+    cout << "               └────────────────────────────────────────────────┘\n";
+    cout << "                     ↑↓ 방향키로 이동, Enter로 선택하세요.\n";
 }
 
 // 맵 출력
@@ -258,17 +289,17 @@ int ingame() {
                 Monster m(12, 2);
                 m.draw();
                 p.move(&m);
+                saveScore(p);
 
                 if (p.score >= 1) {
                     saveScore(p);
                     cout << "\n점수: " << p.score << endl;
-                    _getch();
+                    return 0;
                 }
-                break;
-                
             }
             else if (selected == 1) {
-                showRanking();
+                Player p;
+                showRanking(p);
             }
             else if (selected == 2) {
                 printGameInstructions();
@@ -278,7 +309,7 @@ int ingame() {
                 return 0;
             }
 
-            cout << "\n아무 키나 누르면 메뉴로 돌아갑니다.\n";
+            cout << "\n\n\n                     아무 키나 누르면 메뉴로 돌아갑니다.\n";
             _getch();
         }
     }
@@ -286,10 +317,10 @@ int ingame() {
     return 0;
 }
 
-void saveScore(const Player& player) {
+void saveScore(Player& p) {
     ofstream file("scores.txt", ios::app);
     if (file.is_open()) {
-        file << player.name << " " << player.score << "\n";
+        file << p.name << " " << p.score << "\n";
         file.close();
     }
 }
