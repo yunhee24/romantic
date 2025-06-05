@@ -50,38 +50,6 @@ void CreateAttack(int dir, int x, int y) {
     attacks.push_back(atk);
 }
 
-/*
-void AttackThread(Player* player) {
-    while (gamerun) {
-        for (auto& atk : attacks) {
-            if (!atk.active) continue;
-            {
-                std::lock_guard<std::mutex> lock(output_mutex);
-                gotoxy(atk.x, atk.y);  
-                std::cout << "  ";
-            }
-            //위치 이동
-            atk.x += atk.dx;
-            atk.y += atk.dy;
-            //맵 바깥으로 나가면 사라짐
-            if (atk.x < MAP_LEFT + 1 || atk.x > MAP_RIGHT - 2 ||
-                atk.y < MAP_TOP + 2 || atk.y > MAP_BOTTOM - 2) {
-                atk.active = false;
-                continue;
-            }
-
-            {
-                std::lock_guard<std::mutex> lock(output_mutex);
-                gotoxy(atk.x, atk.y);
-                std::cout << atk.symbol;
-            }
-        }
-
-        Sleep(500);  // 0.5초 간격
-    }
-}
-*/
-
 void UpdateAttacks(Player* player)
 {
     for (auto& atk : attacks) {
