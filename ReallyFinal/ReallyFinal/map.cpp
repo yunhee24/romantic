@@ -1,13 +1,16 @@
 #include "map.h"
 #include "player.h"
 #include "monster.h"
-#include "Timer.h"   //Å¸ÀÌ¸Ó
+#include "attack.h"
+#include "Timer.h"   //íƒ€ì´ë¨¸
 #include <thread>
 #include <vector>
+#include <mutex>
 
 std::vector<Monster> monsters;
+extern std::mutex output_mutex;
 
-// Ä¿¼­ À§Ä¡ Á¶Á¤
+// ì»¤ì„œ ìœ„ì¹˜ ì¡°ì •
 void setCursorPosition(int x, int y) {
     COORD pos = { static_cast<SHORT>(x), static_cast<SHORT>(y) };
     SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
@@ -15,10 +18,10 @@ void setCursorPosition(int x, int y) {
 
 const int MENU_COUNT = 4;
 const string menuItems[MENU_COUNT] = {
-    "°ÔÀÓ ½ÃÀÛ",
-    "°ÔÀÓ ·©Å·",
-    "°ÔÀÓ ¹æ¹ı",
-    "°ÔÀÓ Á¾·á"
+    "ê²Œì„ ì‹œì‘",
+    "ê²Œì„ ë­í‚¹",
+    "ê²Œì„ ë°©ë²•",
+    "ê²Œì„ ì¢…ë£Œ"
 };
 
 struct Scorein {
@@ -27,7 +30,7 @@ struct Scorein {
 };
 
 bool compareByScore(const Scorein& a, const Scorein& b) {
-    return a.score > b.score;  // ³ôÀº Á¡¼ö ¸ÕÀú
+    return a.score > b.score;  // ë†’ì€ ì ìˆ˜ ë¨¼ì €
 }
 
 int getDisplayWidth(const string& text) {
@@ -38,32 +41,32 @@ int getDisplayWidth(const string& text) {
     return width;
 }
 
-// °ÔÀÓ ¹æ¹ı Ãâ·Â
+// ê²Œì„ ë°©ë²• ì¶œë ¥
 void printGameInstructions() {
     HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
 
-    cout << "[°ÔÀÓ ¹æ¹ı]\n";
+    cout << "[ê²Œì„ ë°©ë²•]\n";
 
-    //»¡°£»ö ¼³Á¤
+    //ë¹¨ê°„ìƒ‰ ì„¤ì •
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
-    cout << "- Å°º¸µå ¡è ¡é ¡ç ¡æ ¹æÇâÅ°·Î ÇÃ·¹ÀÌ¾î¸¦ Á¶ÀÛÇÒ ¼ö ÀÖ½À´Ï´Ù.\n";
+    cout << "- í‚¤ë³´ë“œ â†‘ â†“ â† â†’ ë°©í–¥í‚¤ë¡œ í”Œë ˆì´ì–´ë¥¼ ì¡°ì‘í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.\n";
 
-    //Èò»ö(±âº»»ö) º¹¿ø
+    //í°ìƒ‰(ê¸°ë³¸ìƒ‰) ë³µì›
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
-    cout << "- ¸Å ÅÏ¸¶´Ù ·£´ıÀ¸·Î ¼ıÀÚ°¡ ºÎ¿©µÇ°í, ÇØ´ç ¼ıÀÚ¸¸Å­ ÀÌµ¿ÇÒ ¼ö ÀÖ½À´Ï´Ù.\n";
-    cout << "- ÀÌµ¿ÀÌ ³¡³ª¸é, ¸¶Áö¸·À¸·Î ¿òÁ÷ÀÎ ¹æÇâÀ¸·Î ÀÚµ¿À¸·Î °ø°İÀÌ ³ª°©´Ï´Ù.\n";
-    cout << "- ÀûÀÇ °ø°İÀº **ÇÃ·¹ÀÌ¾î°¡ ¿òÁ÷¿´À» ¶§¸¸** µ¿ÀÛÇÕ´Ï´Ù.\n";
-    cout << "  (Áï, ÇÃ·¹ÀÌ¾î°¡ °¡¸¸È÷ ÀÖÀ¸¸é Àûµµ °ø°İÇÏÁö ¾Ê½À´Ï´Ù!)\n";
-    cout << "- Á¦ÇÑµÈ ½Ã°£ µ¿¾È ¸ó½ºÅÍ¸¦ Ã³Ä¡ÇÏ¸ç ÃÖ´ëÇÑ ¸¹Àº Á¡¼ö¸¦ È¹µæÇÏ¼¼¿ä.\n";
+    cout << "- ë§¤ í„´ë§ˆë‹¤ ëœë¤ìœ¼ë¡œ ìˆ«ìê°€ ë¶€ì—¬ë˜ê³ , í•´ë‹¹ ìˆ«ìë§Œí¼ ì´ë™í•  ìˆ˜ ìˆìŠµë‹ˆë‹¤.\n";
+    cout << "- ì´ë™ì´ ëë‚˜ë©´, ë§ˆì§€ë§‰ìœ¼ë¡œ ì›€ì§ì¸ ë°©í–¥ìœ¼ë¡œ ìë™ìœ¼ë¡œ ê³µê²©ì´ ë‚˜ê°‘ë‹ˆë‹¤.\n";
+    cout << "- ì ì˜ ê³µê²©ì€ **í”Œë ˆì´ì–´ê°€ ì›€ì§ì˜€ì„ ë•Œë§Œ** ë™ì‘í•©ë‹ˆë‹¤.\n";
+    cout << "  (ì¦‰, í”Œë ˆì´ì–´ê°€ ê°€ë§Œíˆ ìˆìœ¼ë©´ ì ë„ ê³µê²©í•˜ì§€ ì•ŠìŠµë‹ˆë‹¤!)\n";
+    cout << "- ì œí•œëœ ì‹œê°„ ë™ì•ˆ ëª¬ìŠ¤í„°ë¥¼ ì²˜ì¹˜í•˜ë©° ìµœëŒ€í•œ ë§ì€ ì ìˆ˜ë¥¼ íšë“í•˜ì„¸ìš”.\n";
 }
 
-// ·©Å· Ãâ·Â
+// ë­í‚¹ ì¶œë ¥
 void showRanking() {
     ifstream file("scores.txt");
     vector<Scorein> rankings;
 
     if (!file) {
-        cout << "·©Å· ÆÄÀÏÀÌ ¾ø½À´Ï´Ù.\n";
+        cout << "ë­í‚¹ íŒŒì¼ì´ ì—†ìŠµë‹ˆë‹¤.\n";
         return;
     }
 
@@ -76,27 +79,27 @@ void showRanking() {
 
     sort(rankings.begin(), rankings.end(), compareByScore);
 
-    cout << "===== °ÔÀÓ ·©Å· =====\n";
+    cout << "===== ê²Œì„ ë­í‚¹ =====\n";
     for (size_t i = 0; i < rankings.size(); ++i) {
         cout << i + 1 << ". " << rankings[i].name << " - " << rankings[i].score << endl;
     }
 }
 /*
-ÀúÀå ½ÇÆĞ Ã³¸®??
+ì €ì¥ ì‹¤íŒ¨ ì²˜ë¦¬??
 
 void saveScore(const string& name, int score) {
-    ofstream file("scores.txt", ios::app);  // append ¸ğµå
+    ofstream file("scores.txt", ios::app);  // append ëª¨ë“œ
     if (file) {
         file << name << " " << score << endl;
         file.close();
     }
     else {
-        cout << "·©Å· ÀúÀå ½ÇÆĞ!\n";
+        cout << "ë­í‚¹ ì €ì¥ ì‹¤íŒ¨!\n";
     }
 }
 */
 
-// ½ÃÀÛ ¸Ş´º Ãâ·Â
+// ì‹œì‘ ë©”ë‰´ ì¶œë ¥
 void drawMenu(int selected) {
     system("cls");
 
@@ -111,50 +114,50 @@ void drawMenu(int selected) {
                                                                              
     )";
 
-    const int boxWidth = 58;  // ³»ºÎ Æø
+    const int boxWidth = 58;  // ë‚´ë¶€ í­
 
     cout << "\n";
-    cout << "        ¦£¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡ MENU ¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¤\n";
+    cout << "        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ MENU â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”\n";
 
     for (int i = 0; i < MENU_COUNT; ++i) {
-        cout << "        ¦¢ ";
+        cout << "        â”‚ ";
 
         string label = (i == selected ? "> " : "  ") + menuItems[i];
 
         int width = getDisplayWidth(label);
         int padding = boxWidth - width;
 
-        // ÇÙ½É: padding - 3 ·Î º¸Á¤
-        cout << label << string(padding - 3, ' ') << "¦¢\n";
+        // í•µì‹¬: padding - 3 ë¡œ ë³´ì •
+        cout << label << string(padding - 3, ' ') << "â”‚\n";
     }
 
-    cout << "        ¦¦¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¡¦¥\n";
-    cout << "            ¡è¡é ¹æÇâÅ°·Î ÀÌµ¿, Enter·Î ¼±ÅÃÇÏ¼¼¿ä.\n";
+    cout << "        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜\n";
+    cout << "            â†‘â†“ ë°©í–¥í‚¤ë¡œ ì´ë™, Enterë¡œ ì„ íƒí•˜ì„¸ìš”.\n";
 }
 
-// ¸Ê Ãâ·Â
-void drawMap(int width, int height) {               //³Êµµ mutex·Î º¸È£¸¦ ÇØ¾ß°Úµû.
-    int offsetX = 20; // °¡·Î À§Ä¡ Á¶Á¤ (°ø¹é)
-    int offsetY = 3;  // ¼¼·Î À§Ä¡ Á¶Á¤ (ÁÙ¹Ù²Ş)
+// ë§µ ì¶œë ¥                            //ë„ˆë„ mutexë¡œ ë³´í˜¸ë¥¼ í•´ì•¼ê² ë”°.
+void drawMap(int width, int height) {              
+    int offsetX = 20; // ê°€ë¡œ ìœ„ì¹˜ ì¡°ì • (ê³µë°±)
+    int offsetY = 3;  // ì„¸ë¡œ ìœ„ì¹˜ ì¡°ì • (ì¤„ë°”ê¿ˆ)
 
-    // À§·Î °ø¹é ÁÙ »ğÀÔ
+    // ìœ„ë¡œ ê³µë°± ì¤„ ì‚½ì…
     for (int i = 0; i < offsetY; ++i) {
         cout << endl;
     }
 
     for (int y = 0; y < height; ++y) {
-        // ¿ŞÂÊÀ¸·Î °ø¹é »ğÀÔ
+        // ì™¼ìª½ìœ¼ë¡œ ê³µë°± ì‚½ì…
         for (int i = 0; i < offsetX; ++i) {
             cout << " ";
         }
 
         for (int x = 0; x < width; ++x) {
-            if (y == 0 && x == 0) cout << "¦£";
-            else if (y == 0 && x == width - 1) cout << "¦¤";
-            else if (y == height - 1 && x == 0) cout << "¦¦";
-            else if (y == height - 1 && x == width - 1) cout << "¦¥";
-            else if (y == 0 || y == height - 1) cout << "¦¡";
-            else if (x == 0 || x == width - 1) cout << "¦¢";
+            if (y == 0 && x == 0) cout << "â”Œ";
+            else if (y == 0 && x == width - 1) cout << "â”";
+            else if (y == height - 1 && x == 0) cout << "â””";
+            else if (y == height - 1 && x == width - 1) cout << "â”˜";
+            else if (y == 0 || y == height - 1) cout << "â”€";
+            else if (x == 0 || x == width - 1) cout << "â”‚";
             else cout << " ";
         }
         cout << endl;
@@ -162,58 +165,59 @@ void drawMap(int width, int height) {               //³Êµµ mutex·Î º¸È£¸¦ ÇØ¾ß°Ú
     cout << endl;
 }
 
-// ¸Ê ÀçÃâ·Â
+// ë§µ ì¬ì¶œë ¥
 void drawMapRe(int width, int height) {
+    std::lock_guard<std::mutex> lock(output_mutex);
     int offsetX = 20;
     int offsetY = 3;
 
     for (int x = 0; x < width; ++x) {
         gotoxy(offsetX + x, offsetY + 0);
-        if (x == 0) cout << "¦£";
-        else if (x == width - 1) cout << "¦¤";
-        else cout << "¦¡";
+        if (x == 0) cout << "â”Œ";
+        else if (x == width - 1) cout << "â”";
+        else cout << "â”€";
     }
 
     for (int x = 0; x < width; ++x) {
         gotoxy(offsetX + x, offsetY + height - 1);
-        if (x == 0) cout << "¦¦";
-        else if (x == width - 1) cout << "¦¥";
-        else cout << "¦¡";
+        if (x == 0) cout << "â””";
+        else if (x == width - 1) cout << "â”˜";
+        else cout << "â”€";
     }
 
     for (int y = 1; y < height - 1; ++y) {
         gotoxy(offsetX + 0, offsetY + y);
-        cout << "¦¢";
+        cout << "â”‚";
         gotoxy(offsetX + width - 1, offsetY + y);
-        cout << "¦¢";
+        cout << "â”‚";
     }
 }
 
-// À¯Àú Á¤º¸ ÀÔ·Â
+// ìœ ì € ì •ë³´ ì…ë ¥
 void User(Player& p) {
     int x = 0, y = 0;
 
-    // ÇöÀç Ä¿¼­ À§Ä¡ ÀúÀå
+    // í˜„ì¬ ì»¤ì„œ ìœ„ì¹˜ ì €ì¥
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
     x = csbi.dwCursorPosition.X;
     y = csbi.dwCursorPosition.Y;
 
-    // ÀÔ·Â ¸Ş½ÃÁö Ãâ·Â
-    cout << "ÇÃ·¹ÀÌ¾î ÀÌ¸§À» ÀÔ·ÂÇÏ¼¼¿ä : ";
+    // ì…ë ¥ ë©”ì‹œì§€ ì¶œë ¥
+    cout << "í”Œë ˆì´ì–´ ì´ë¦„ì„ ì…ë ¥í•˜ì„¸ìš” : ";
     getline(cin, p.name);
 
-    // ÀÔ·Â ¸Ş½ÃÁö »èÁ¦
+    // ì…ë ¥ ë©”ì‹œì§€ ì‚­ì œ
     setCursorPosition(x, y);
     cout << string(50, ' ');
     setCursorPosition(x, y);
 }
 
-// ¿òÁ÷ÀÓ È½¼ö ·£´ı ºÎ¿©                 >>> ÇÑ ¹ø Á¤ÇØÁö¸é ³¡. °è¼ÓÇØ¼­ °»½ÅÇØ¾ßÇÔ.
+// ì›€ì§ì„ íšŸìˆ˜ ëœë¤ ë¶€ì—¬                 >>> í•œ ë²ˆ ì •í•´ì§€ë©´ ë. ê³„ì†í•´ì„œ ê°±ì‹ í•´ì•¼í•¨.
 void moveNumber(Player& p) {
     int x = 0, y = 0;
 
-    // ÇöÀç Ä¿¼­ À§Ä¡ ÀúÀå
+    // í˜„ì¬ ì»¤ì„œ ìœ„ì¹˜ ì €ì¥
     CONSOLE_SCREEN_BUFFER_INFO csbi;
     GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &csbi);
     x = csbi.dwCursorPosition.X;
@@ -221,19 +225,19 @@ void moveNumber(Player& p) {
 
     srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    cout << "¿£ÅÍ¸¦ ´­·¯ÁÖ¼¼¿ä.\n";
+    cout << "ì—”í„°ë¥¼ ëˆŒëŸ¬ì£¼ì„¸ìš”.";
     cin.get();
 
-    p.randNumber = std::rand() % 4 + 3;           // PlayerÀÇ ¸â¹ö º¯¼ö¿¡ ÀúÀå     1ÀÏ ¶§ ÀÌ»óÇÑ ¿À·ù »ı±è
-    cout << "·£´ı ¼ıÀÚ: " << p.randNumber << "\n";
+    p.randNumber = std::rand() % 4 + 3;           // Playerì˜ ë©¤ë²„ ë³€ìˆ˜ì— ì €ì¥     1ì¼ ë•Œ ì´ìƒí•œ ì˜¤ë¥˜ ìƒê¹€
+    cout << "ëœë¤ ìˆ«ì: " << p.randNumber << "\n";
 
-    // ÀÔ·Â ¸Ş½ÃÁö »èÁ¦
+    // ì…ë ¥ ë©”ì‹œì§€ ì‚­ì œ
     setCursorPosition(x, y);
     cout << string(60, ' ');
     setCursorPosition(x, y);
 }
 
-// ÀÎ°ÔÀÓ ¸ŞÀÎ ÇÔ¼ö        >> ¿©±â¿¡ Å¸ÀÌ¸Ó ÇÔ¼ö Ãß°¡
+// ì¸ê²Œì„ ë©”ì¸ í•¨ìˆ˜        >> ì—¬ê¸°ì— íƒ€ì´ë¨¸ í•¨ìˆ˜ ì¶”ê°€
 int ingame() {
     const int width = 32;
     const int height = 16;
@@ -258,7 +262,7 @@ int ingame() {
                 drawMap(width, height);
 
                 ULONGLONG start_time = GetTickCount64();
-                std::thread timer_thread(TimerThread, start_time, 40);       //°ÔÀÓ ÇÃ·¹ÀÌ ½Ã°£
+                std::thread timer_thread(TimerThread, start_time, 40);       //ê²Œì„ í”Œë ˆì´ ì‹œê°„
 
                 Monster m;
                 std::thread monster_thread(&Monster::MonsterCreate, &m, std::ref(monsters));
@@ -267,11 +271,12 @@ int ingame() {
 
                 if (timer_thread.joinable()) timer_thread.join();
                 if (monster_thread.joinable()) monster_thread.join();
+                
 
                 if (p.score >= 0) {
                     saveScore(p);
                     gotoxy(0, 4);  //0 ,10
-                    cout << "Á¡¼ö: " << p.score << endl;
+                    cout << "ì ìˆ˜: " << p.score << endl;
                     //_getch();
                 }
                 break;
