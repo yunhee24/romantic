@@ -1,6 +1,7 @@
 #include "player.h"
 #include "monster.h"
 #include "map.h"
+#include "attack.h"
 #include <mutex>
 extern std::mutex output_mutex;
 extern bool gamerun;
@@ -11,7 +12,7 @@ Player::Player() {
     moveCount = 0;
     lastDir = NONE;
     score = 0;
-    hp = 3; // 초기 체력 설정
+    hp = 5; // 초기 체력 설정
 }
 
 int Player::getScore() const {
@@ -30,14 +31,17 @@ void Player::remove() {
     cout << "  ";
 }
 
+int Player::getX() const { return x; }
+int Player::getY() const { return y; }
+
 void Player::decreaseHP() {
     hp--;
-    std::lock_guard<std::mutex> lock(output_mutex);
-    gotoxy(60, 2);
-    cout << "체력: " << hp << "  ";
+    //std::lock_guard<std::mutex> lock(output_mutex);
+    //gotoxy(60, 5);
+    //cout << "체력: " << hp << "  ";
 }
 
-int Player::getHP() const {
+int Player::getHP(){
     return hp;
 }
 
@@ -69,12 +73,12 @@ void Player::attack(std::vector<Monster>& monsters) {
             drawMapRe(32, 16);
 
             for (auto& m : monsters) {
-                if (m.alive && (m.x/2) == dx && m.y == dy) {
+                if (m.alive && (m.x / 2) == dx && m.y == dy) {
                     m.alive = false;
                     score++;
                     {
                         std::lock_guard<std::mutex> lock(output_mutex);
-                        gotoxy(60, 1);
+                        gotoxy(0, 3);
                         cout << "점수: " << score << "  ";
 
                         gotoxy(m.x * 2, m.y);
@@ -116,6 +120,9 @@ void Player::move(std::vector<Monster>& monsters) {
                         gotoxy(0, 6);
                         cout << "이동 " << moveCount << "   ";
                     }
+
+                    UpdateAttacks(this);     //몬스터 공격 이동 시키기
+
                     if (moveCount == randNumber) {
                         attack(monsters);
                         moveCount = 0;
