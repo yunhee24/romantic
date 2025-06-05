@@ -7,12 +7,12 @@ using namespace std;
 
 class Monster {
 public:
-    int x, y;
-    bool alive;
+    int x, y;           
+    bool alive;         
     int HP;
-    string ch[4] = { "¡ã", "¡â", "¡á", "¡ß" };
+    string ch[4] = { "â–²", "â–³", "â– ", "â—†" };
 
-    Monster(int startX = 12, int startY = 5, int hp = 3);  // »ı¼ºÀÚ
+    Monster(int startX = 12, int startY = 5, int hp = 3);  // ìƒì„±ì
 
     void MonsterCreate(vector<Monster>& monsters);
 
