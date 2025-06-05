@@ -1,6 +1,7 @@
 #include "monster.h"
 #include "gotoxy.h"
 #include "map.h"
+#include "attack.h" 
 #include <cstdlib>
 #include <ctime>
 #include <thread>
@@ -9,7 +10,7 @@
 extern bool gamerun;
 extern std::mutex output_mutex;
 
-// »ı¼ºÀÚ: À§Ä¡, Ã¼·Â ÃÊ±âÈ­ + alive ¼³Á¤
+// ìƒì„±ì: ìœ„ì¹˜, ì²´ë ¥ ì´ˆê¸°í™” + alive ì„¤ì •
 Monster::Monster(int startX, int startY, int hp) {
     x = startX;
     y = startY;
@@ -18,22 +19,22 @@ Monster::Monster(int startX, int startY, int hp) {
 }
 
 
-// ·£´ı ´Ù¼ö ¸ó½ºÅÍ Ãâ·Â (°ø°İ¿ëÀº ¾Æ´Ô)
+// ëœë¤ ë‹¤ìˆ˜ ëª¬ìŠ¤í„° ì¶œë ¥ (ê³µê²©ìš©ì€ ì•„ë‹˜)
 void Monster::PrintMonster(int x, int y, int select) {
     std::lock_guard<std::mutex> lock(output_mutex);
     gotoxy(x, y);
     cout << ch[select];
 }
 
-// ·£´ı ´Ù¼ö ¸ó½ºÅÍ Á¦°Å
+// ëœë¤ ë‹¤ìˆ˜ ëª¬ìŠ¤í„° ì œê±°
 void Monster::MonsterClear(int x[], int y[], int count, vector<Monster>& monsters) {
     std::lock_guard<std::mutex> lock(output_mutex);
     for (int i = 0; i < count; ++i) {
-        // È­¸é Áö¿ì±â
+        // í™”ë©´ ì§€ìš°ê¸°
         gotoxy(x[i], y[i]);
         cout << "  ";
 
-        // alive = false Ã³¸®
+        // alive = false ì²˜ë¦¬
         for (auto& m : monsters) {
             if (m.x == x[i] && m.y == y[i] && m.alive) {
                 m.alive = false;
@@ -43,27 +44,27 @@ void Monster::MonsterClear(int x[], int y[], int count, vector<Monster>& monster
     }
 }
 
-// ¸ó½ºÅÍ »ı¼º ·çÇÁ
+// ëª¬ìŠ¤í„° ìƒì„± ë£¨í”„
 void Monster::MonsterCreate(std::vector<Monster>& monsters) {
     srand((unsigned int)time(NULL));
     const int MAX = 5;
     int xs[MAX], ys[MAX], dirs[MAX];
 
     while (gamerun) {
-        int mcnt = rand() % 3 + 1;  // 1~3¸¶¸® »ı¼º
+        int mcnt = rand() % 3 + 2;  // 2~4ë§ˆë¦¬ ìƒì„±
 
         for (int i = 0; i < mcnt; i++) {
             int dir = rand() % 4;
             int x, y;
 
             switch (dir) {
-                // À§ÂÊ
+                // ìœ„ìª½
             case 0: y = MAP_TOP - 1; x = rand() % 20 + 25; break;
-                // ¾Æ·¡ÂÊ 
+                // ì•„ë˜ìª½ 
             case 1: y = MAP_BOTTOM + 1; x = rand() % 20 + 25; break;
-                // ¿ŞÂÊ
+                // ì™¼ìª½
             case 2: x = MAP_LEFT - 2; y = rand() % 10 + 5; break;
-                // ¿À¸¥ÂÊ
+                // ì˜¤ë¥¸ìª½
             case 3: x = MAP_RIGHT + 5; y = rand() % 10 + 5; break;
             }
             xs[i] = x;
@@ -77,14 +78,16 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
                     break;
                 }
             }
-            monsters.emplace_back(x, y, 3); // º¤ÅÍ¿¡ Ãß°¡, ¸¶Áö¸·Àº Ã¼·Â
+            monsters.emplace_back(x, y, 3); // ë²¡í„°ì— ì¶”ê°€, ë§ˆì§€ë§‰ì€ ì²´ë ¥
+
+            CreateAttack(dir, x, y);  // ëª¬ìŠ¤í„° ê³µê²© ìƒì„±
         }
-        // ¸ó½ºÅÍ Ãâ·Â
+        // ëª¬ìŠ¤í„° ì¶œë ¥
         for (int i = 0; i < mcnt; ++i) {
             PrintMonster(xs[i], ys[i], dirs[i]);
         }
 
-        // ÀÏÁ¤ ½Ã°£ À¯Áö ÈÄ Á¦°Å
+        // ì¼ì • ì‹œê°„ ìœ ì§€ í›„ ì œê±°
         int duration = (rand() % 5 + 2) * 1000;
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
 
