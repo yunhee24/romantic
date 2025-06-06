@@ -70,12 +70,6 @@ void UpdateAttacks(Player* player)
             atk.active = false;
             player->decreaseHP();
 
-            {
-                std::lock_guard<std::mutex> lock(output_mutex);
-                gotoxy(0, 2);  // 체력 표시 위치
-                std::cout << "체력: " << player->getHP() << "  ";
-            }
-
             if (player->getHP() > 0) {
                 player->draw();  // 플레이어 다시 그리기
             }

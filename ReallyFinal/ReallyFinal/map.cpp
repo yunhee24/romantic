@@ -228,7 +228,7 @@ void moveNumber(Player& p) {
     cout << "엔터를 눌러주세요.";
     cin.get();
 
-    p.randNumber = std::rand() % 4 + 3;           // Player의 멤버 변수에 저장     1일 때 이상한 오류 생김
+    p.randNumber = std::rand() % 4 + 2;           // Player의 멤버 변수에 저장     1일 때 이상한 오류 생김
     cout << "랜덤 숫자: " << p.randNumber << "\n";
 
     // 입력 메시지 삭제
@@ -262,7 +262,7 @@ int ingame() {
                 drawMap(width, height);
 
                 ULONGLONG start_time = GetTickCount64();
-                std::thread timer_thread(TimerThread, start_time, 40);       //게임 플레이 시간
+                std::thread timer_thread(TimerThread, start_time, 50);       //게임 플레이 시간
 
                 Monster m;
                 std::thread monster_thread(&Monster::MonsterCreate, &m, std::ref(monsters));

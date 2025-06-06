@@ -7,8 +7,6 @@ extern std::mutex output_mutex;
 extern bool gamerun;
 
 Player::Player() {
-    //x = 18;  32*16
-    //y = 10;
     x = 14;    //28*14
     y = 9;
     moveCount = 0;
@@ -63,7 +61,7 @@ void Player::attack(std::vector<Monster>& monsters) {
     }
 
     int dx = tx, dy = ty;
-    for (int i = 1; i < 6; i++) {
+    for (int i = 1; i < 7; i++) {
         if (dx >= 6 && dx <= 26 && dy >= 2 && dy <= 20) {
             {
                 std::lock_guard<std::mutex> lock(output_mutex);

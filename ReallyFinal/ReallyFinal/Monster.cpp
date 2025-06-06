@@ -89,7 +89,7 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
 
         // 일정 시간 유지 후 제거
         int duration = (rand() % 4 + 2) * 1000;
-        std::this_thread::sleep_for(std::chrono::milliseconds(duration));
+        Sleep(duration);
 
         this->MonsterClear(xs, ys, mcnt, monsters);
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
