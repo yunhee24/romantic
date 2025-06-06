@@ -7,12 +7,12 @@ extern std::mutex output_mutex;
 extern bool gamerun;
 
 Player::Player() {
-    x = 14;    //28*14
+    x = 14;
     y = 9;
     moveCount = 0;
     lastDir = NONE;
     score = 0;
-    hp = 5; // ÃÊ±â Ã¼·Â ¼³Á¤
+    hp = 5; // ì´ˆê¸° ì²´ë ¥ ì„¤ì •
 }
 
 int Player::getScore() const {
@@ -22,11 +22,11 @@ int Player::getScore() const {
 void Player::draw() {
     std::lock_guard<std::mutex> lock(output_mutex);
     gotoxy(x * 2, y);
-    cout << "¡Ï";
+    cout << "â™€";
 
     gotoxy(0, 2);
-    cout << "Ã¼·Â: ";
-    for (int i = 0; i < hp; ++i) cout << "¢¾";
+    cout << "ì²´ë ¥: ";
+    for (int i = 0; i < hp; ++i) cout << "â™¥";
     cout << "   ";
 }
 
@@ -66,7 +66,7 @@ void Player::attack(std::vector<Monster>& monsters) {
             {
                 std::lock_guard<std::mutex> lock(output_mutex);
                 gotoxy(dx * 2, dy);
-                cout << "¡Ø";
+                cout << "â€»";
             }
             draw();
             Sleep(120);
@@ -75,8 +75,7 @@ void Player::attack(std::vector<Monster>& monsters) {
                 gotoxy(dx * 2, dy);
                 cout << "  ";
             }
-
-            drawMapRe(28, 14);                               // <<<<¸Ê Àç»ý¼º
+            drawMapRe(28, 14);                               // <<<<ë§µ ìž¬ìƒì„±
 
             for (auto& m : monsters) {
                 if (m.alive && (m.x / 2) == dx && m.y == dy) {
@@ -85,7 +84,7 @@ void Player::attack(std::vector<Monster>& monsters) {
                     {
                         std::lock_guard<std::mutex> lock(output_mutex);
                         gotoxy(0, 3);
-                        cout << "Á¡¼ö: " << score << "  ";
+                        cout << "ì ìˆ˜: " << score << "  ";
 
                         gotoxy(m.x * 2, m.y);
                         cout << "  ";
@@ -115,23 +114,31 @@ void Player::move(std::vector<Monster>& monsters) {
                 bool moved = false;
                 switch (in) {
                 case 72: if (y > 4) { y--; moved = true; lastDir = UP; } break;
-                case 80: if (y < 15) { y++; moved = true; lastDir = DOWN; } break;
+                case 80: if (y < 15) { y++; moved = true; lastDir = DOWN; } break;    //y<17
                 case 75: if (x > 11) { x--; moved = true; lastDir = LEFT; } break;
-                case 77: if (x < 22) { x++; moved = true; lastDir = RIGHT; } break;
+                case 77: if (x < 22) { x++; moved = true; lastDir = RIGHT; } break;   //x<25
                 }
                 if (moved) {
                     moveCount++;
                     {
                         std::lock_guard<std::mutex> lock(output_mutex);
                         gotoxy(0, 6);
-                        cout << "ÀÌµ¿ " << moveCount << "   ";
+                        cout << "ì´ë™ " << moveCount << "   ";
                     }
 
-                    UpdateAttacks(this);     //¸ó½ºÅÍ °ø°Ý ÀÌµ¿ ½ÃÅ°±â
+                    UpdateAttacks(this);     //ëª¬ìŠ¤í„° ê³µê²© ì´ë™ ì‹œí‚¤ê¸°
 
                     if (moveCount == randNumber) {
                         attack(monsters);
                         moveCount = 0;
+
+                        // ìƒˆë¡œìš´ ëžœë¤ ì´ë™ íšŸìˆ˜ ìž¬í• ë‹¹
+                        randNumber = rand() % 3 + 3;
+                        {
+                            std::lock_guard<std::mutex> lock(output_mutex);
+                            gotoxy(0, 1);
+                            cout << "ì´ë™ íšŸìˆ˜: " << randNumber << "   ";
+                        }
                     }
                 }
                 draw();
