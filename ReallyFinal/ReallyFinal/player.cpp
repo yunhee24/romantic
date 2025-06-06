@@ -75,6 +75,7 @@ void Player::attack(std::vector<Monster>& monsters) {
                 gotoxy(dx * 2, dy);
                 cout << "  ";
             }
+
             drawMapRe(28, 14);                               // <<<<¸Ê Àç»ý¼º
 
             for (auto& m : monsters) {
@@ -114,9 +115,9 @@ void Player::move(std::vector<Monster>& monsters) {
                 bool moved = false;
                 switch (in) {
                 case 72: if (y > 4) { y--; moved = true; lastDir = UP; } break;
-                case 80: if (y < 15) { y++; moved = true; lastDir = DOWN; } break;    //y<17
+                case 80: if (y < 15) { y++; moved = true; lastDir = DOWN; } break;
                 case 75: if (x > 11) { x--; moved = true; lastDir = LEFT; } break;
-                case 77: if (x < 22) { x++; moved = true; lastDir = RIGHT; } break;   //x<25
+                case 77: if (x < 22) { x++; moved = true; lastDir = RIGHT; } break;
                 }
                 if (moved) {
                     moveCount++;

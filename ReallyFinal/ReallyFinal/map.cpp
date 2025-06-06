@@ -144,13 +144,11 @@ void drawMap(int width, int height) {
     for (int i = 0; i < offsetY; ++i) {
         cout << endl;
     }
-
     for (int y = 0; y < height; ++y) {
         // 왼쪽으로 공백 삽입
         for (int i = 0; i < offsetX; ++i) {
             cout << " ";
         }
-
         for (int x = 0; x < width; ++x) {
             if (y == 0 && x == 0) cout << "┌";
             else if (y == 0 && x == width - 1) cout << "┐";
@@ -213,7 +211,7 @@ void User(Player& p) {
     setCursorPosition(x, y);
 }
 
-// 움직임 횟수 랜덤 부여                 >>> 한 번 정해지면 끝. 계속해서 갱신해야함.
+// 움직임 횟수 랜덤 부여                 >>> 한 번 정해지면 끝.   계속해서 갱신해야함.
 void moveNumber(Player& p) {
     int x = 0, y = 0;
 
@@ -239,7 +237,7 @@ void moveNumber(Player& p) {
 
 // 인게임 메인 함수
 int ingame() {
-    const int width = 28;  // 맵 크기
+    const int width = 28;  // 맵 크기 28x14로 수정했음
     const int height = 14;
     int selected = 0;
 

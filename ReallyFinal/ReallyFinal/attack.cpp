@@ -8,10 +8,8 @@
 #include <windows.h>
 
 extern std::mutex output_mutex;
-extern bool gamerun;
-
 std::vector<AttackObj> attacks;
-
+extern bool gamerun;
 
 void CreateAttack(int dir, int x, int y) {
     AttackObj atk;
@@ -47,7 +45,6 @@ void CreateAttack(int dir, int x, int y) {
         atk.symbol = "¦¡";
         break;
     }
-
     attacks.push_back(atk);
 }
 
@@ -55,7 +52,6 @@ void UpdateAttacks(Player* player)
 {
     for (auto& atk : attacks) {
         if (!atk.active) continue;
-
         {
             std::lock_guard<std::mutex> lock(output_mutex);
             gotoxy(atk.x, atk.y);

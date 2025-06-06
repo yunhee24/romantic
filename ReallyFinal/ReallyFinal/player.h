@@ -30,8 +30,7 @@ public:
     virtual void remove();
     virtual void move(std::vector<Monster>& monsters);
     virtual void attack(std::vector<Monster>& monsters);
-
-    //virtual void setHP();         
+    
     virtual void decreaseHP();
     virtual int getHP();
 

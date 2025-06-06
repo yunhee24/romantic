@@ -18,7 +18,6 @@ Monster::Monster(int startX, int startY, int hp) {
     alive = true;
 }
 
-
 // 랜덤 다수 몬스터 출력 (공격용은 아님)
 void Monster::PrintMonster(int x, int y, int select) {
     std::lock_guard<std::mutex> lock(output_mutex);
@@ -58,14 +57,14 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
             int x, y;
 
             switch (dir) {
-                // 위쪽
+            // 위쪽
             case 0: y = MAP_TOP - 1; x = rand() % 20 + 25; break;
-                // 아래쪽 
-            case 1: y = MAP_BOTTOM + 1; x = rand() % 20 + 25; break;  //MAP_BOTTOM + 1
-                // 왼쪽
+            // 아래쪽 
+            case 1: y = MAP_BOTTOM + 1; x = rand() % 20 + 25; break;
+            // 왼쪽
             case 2: x = MAP_LEFT - 2; y = rand() % 10 + 5; break;
-                // 오른쪽
-            case 3: x = MAP_RIGHT + 1; y = rand() % 10 + 5; break;    //MAP_RIGHT + 5
+            // 오른쪽
+            case 3: x = MAP_RIGHT + 1; y = rand() % 10 + 5; break;
             }
             xs[i] = x;
             ys[i] = y;
@@ -78,8 +77,8 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
                     break;
                 }
             }
-            monsters.emplace_back(x, y, 3); // 벡터에 추가, 마지막은 체력
 
+            monsters.emplace_back(x, y, 3); // 벡터에 추가, 마지막은 체력
             CreateAttack(dir, x, y);  // 몬스터 공격 생성
         }
         // 몬스터 출력
