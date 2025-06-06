@@ -49,7 +49,6 @@ void printGameInstructions() {
     cout << "                            > 게임 방법 <";
     cout << "\n\n\n\n";
 
-
     // 🔴 빨간색 설정
     SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_INTENSITY);
     cout << "   - 키보드 ↑ ↓ ← → 방향키로 플레이어를 조작할 수 있습니다.\n";
@@ -92,6 +91,7 @@ void showRanking(Player &p) {
                      |_|\_\__,_|_| |_|_|\_\|_|_| |_|\__, |
                                                     |___/ 
     )";
+
     cout << "\n                                > 게임 랭킹 <";
     cout << "\n              ------------------------------------------------";
     cout << "\n                    1. JunSeo 17";
@@ -100,8 +100,6 @@ void showRanking(Player &p) {
     cout << "\n                    4. ";
     cout << "\n                    5. ";
     cout << "\n\n\n";
-
-
     
     for (size_t i = 0; i < rankings.size(); ++i) {
         cout << i + 1 << ". " << rankings[i].name << " - " << rankings[i].score << endl;

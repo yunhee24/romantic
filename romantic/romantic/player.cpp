@@ -57,7 +57,7 @@ void Player::attack(Monster* m) {
             gotoxy(dx * 2, dy);
             cout << "¡Ø";
             draw();
-            Sleep(300);
+            Sleep(100);
             gotoxy(dx * 2, dy);
             cout << " ";
             drawMapRe(32, 16);
