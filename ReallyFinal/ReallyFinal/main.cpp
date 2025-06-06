@@ -1,8 +1,8 @@
 #include "player.h"
 #include "monster.h"
 #include "map.h"
-#include "Timer.h"   //타이머 map.cpp -> ingame안에 있음
-#include <thread>   //타이머
+#include "Timer.h"
+#include <thread>
 #include <future>
 using namespace std;
 

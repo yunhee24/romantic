@@ -5,7 +5,7 @@
 using namespace std;
 
 bool gamerun = true;
-mutex output_mutex;
+std::mutex output_mutex;
 
 void TimerThread(ULONGLONG start_time, int total) {
     {
