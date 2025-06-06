@@ -1,6 +1,7 @@
 #include "monster.h"
 #include "gotoxy.h"
 #include "map.h"
+#include "attack.h" 
 #include <cstdlib>
 #include <ctime>
 #include <thread>
@@ -50,7 +51,7 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
     int xs[MAX], ys[MAX], dirs[MAX];
 
     while (gamerun) {
-        int mcnt = rand() % 3 + 1;  // 1~3마리 생성
+        int mcnt = rand() % 3 + 3;     //몬스터 수
 
         for (int i = 0; i < mcnt; i++) {
             int dir = rand() % 4;
@@ -60,11 +61,11 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
                 // 위쪽
             case 0: y = MAP_TOP - 1; x = rand() % 20 + 25; break;
                 // 아래쪽 
-            case 1: y = MAP_BOTTOM + 1; x = rand() % 20 + 25; break;
+            case 1: y = MAP_BOTTOM + 1; x = rand() % 20 + 25; break;  //MAP_BOTTOM + 1
                 // 왼쪽
             case 2: x = MAP_LEFT - 2; y = rand() % 10 + 5; break;
                 // 오른쪽
-            case 3: x = MAP_RIGHT + 5; y = rand() % 10 + 5; break;
+            case 3: x = MAP_RIGHT + 1; y = rand() % 10 + 5; break;    //MAP_RIGHT + 5
             }
             xs[i] = x;
             ys[i] = y;
@@ -78,6 +79,8 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
                 }
             }
             monsters.emplace_back(x, y, 3); // 벡터에 추가, 마지막은 체력
+
+            CreateAttack(dir, x, y);  // 몬스터 공격 생성
         }
         // 몬스터 출력
         for (int i = 0; i < mcnt; ++i) {
@@ -85,7 +88,7 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
         }
 
         // 일정 시간 유지 후 제거
-        int duration = (rand() % 5 + 2) * 1000;
+        int duration = (rand() % 4 + 2) * 1000;
         std::this_thread::sleep_for(std::chrono::milliseconds(duration));
 
         this->MonsterClear(xs, ys, mcnt, monsters);

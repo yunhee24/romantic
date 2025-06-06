@@ -1,11 +1,14 @@
 #include "map.h"
 #include "player.h"
 #include "monster.h"
+#include "attack.h"
 #include "Timer.h"   //타이머
 #include <thread>
 #include <vector>
+#include <mutex>
 
 std::vector<Monster> monsters;
+extern std::mutex output_mutex;
 
 // 커서 위치 조정
 void setCursorPosition(int x, int y) {
@@ -132,8 +135,8 @@ void drawMenu(int selected) {
     cout << "            ↑↓ 방향키로 이동, Enter로 선택하세요.\n";
 }
 
-// 맵 출력
-void drawMap(int width, int height) {               //너도 mutex로 보호를 해야겠따.
+// 맵 출력                        
+void drawMap(int width, int height) {
     int offsetX = 20; // 가로 위치 조정 (공백)
     int offsetY = 3;  // 세로 위치 조정 (줄바꿈)
 
@@ -164,6 +167,7 @@ void drawMap(int width, int height) {               //너도 mutex로 보호를 해야겠
 
 // 맵 재출력
 void drawMapRe(int width, int height) {
+    std::lock_guard<std::mutex> lock(output_mutex);
     int offsetX = 20;
     int offsetY = 3;
 
@@ -221,7 +225,7 @@ void moveNumber(Player& p) {
 
     srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    cout << "엔터를 눌러주세요.\n";
+    cout << "엔터를 눌러주세요.";
     cin.get();
 
     p.randNumber = std::rand() % 4 + 3;           // Player의 멤버 변수에 저장     1일 때 이상한 오류 생김
@@ -233,10 +237,10 @@ void moveNumber(Player& p) {
     setCursorPosition(x, y);
 }
 
-// 인게임 메인 함수        >> 여기에 타이머 함수 추가
+// 인게임 메인 함수
 int ingame() {
-    const int width = 32;
-    const int height = 16;
+    const int width = 28;  // 맵 크기
+    const int height = 14;
     int selected = 0;
 
     while (true) {
@@ -268,9 +272,10 @@ int ingame() {
                 if (timer_thread.joinable()) timer_thread.join();
                 if (monster_thread.joinable()) monster_thread.join();
 
+
                 if (p.score >= 0) {
                     saveScore(p);
-                    gotoxy(0, 4);  //0 ,10
+                    gotoxy(0, 4);
                     cout << "점수: " << p.score << endl;
                     //_getch();
                 }

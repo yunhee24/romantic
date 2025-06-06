@@ -130,13 +130,12 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="map.cpp" />
     <ClCompile Include="Monster.cpp" />
-    <ClCompile Include="Mutex_test.cpp">
-      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">true</ExcludedFromBuild>
-    </ClCompile>
     <ClCompile Include="player.cpp" />
     <ClCompile Include="Timer.cpp" />
+    <ClCompile Include="attack.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="attack.h" />
     <ClInclude Include="gotoxy.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="Monster.h" />

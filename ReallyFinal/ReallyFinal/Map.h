@@ -10,12 +10,21 @@
 
 using namespace std;
 
-enum map_pos {   // 맵 좌표
+//enum map_pos {   // 맵 좌표 32*16
+//    MAP_LEFT = 20,
+//    MAP_RIGHT = 47,
+//    MAP_TOP = 3,
+//    MAP_BOTTOM = 18
+//}
+
+enum map_pos {   // 맵 좌표   28*14
     MAP_LEFT = 20,
     MAP_RIGHT = 47,
     MAP_TOP = 3,
-    MAP_BOTTOM = 18
+    MAP_BOTTOM = 16
 };
+
+//맵 출력 mutex로 보호하기.
 
 void setCursorPosition(int x, int y);	// 커서 위치 조정
 void drawMenu(int selected);			// 시작 메뉴 출력

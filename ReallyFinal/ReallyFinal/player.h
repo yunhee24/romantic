@@ -14,6 +14,7 @@ class Monster;
 class Player {
 protected:
     int x, y;
+    int hp;
     int moveCount;
     Direction lastDir;
 
@@ -30,6 +31,12 @@ public:
     virtual void move(std::vector<Monster>& monsters);
     virtual void attack(std::vector<Monster>& monsters);
 
+    //virtual void setHP();         
+    virtual void decreaseHP();
+    virtual int getHP();
+
+    int getX() const;
+    int getY() const;
 
     int getScore() const;
 };
