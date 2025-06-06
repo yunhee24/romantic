@@ -213,7 +213,7 @@ void User(Player& p) {
     setCursorPosition(x, y);
 }
 
-// 움직임 횟수 랜덤 부여                 >>> 한 번 정해지면 끝. 계속해서 갱신해야함.
+// 움직임 횟수 랜덤 부여               
 void moveNumber(Player& p) {
     int x = 0, y = 0;
 
@@ -262,7 +262,7 @@ int ingame() {
                 drawMap(width, height);
 
                 ULONGLONG start_time = GetTickCount64();
-                std::thread timer_thread(TimerThread, start_time, 50);       //게임 플레이 시간
+                std::thread timer_thread(TimerThread, start_time, 60);       //게임 플레이 시간
 
                 Monster m;
                 std::thread monster_thread(&Monster::MonsterCreate, &m, std::ref(monsters));
