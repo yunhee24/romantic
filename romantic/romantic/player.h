@@ -2,19 +2,19 @@
 #include <iostream>
 #include <conio.h>
 #include <windows.h>
+#include <vector>
+#include "gotoxy.h"
 using namespace std;
 
 void CursorView();
 
-void gotoxy(int, int);
-
-enum Direction { NONE, UP, DOWN, LEFT, RIGHT };     // 플레이어 방향키 입력
-
+enum Direction { NONE, UP, DOWN, LEFT, RIGHT };
 class Monster;
 
 class Player {
 protected:
     int x, y;
+    int hp;
     int moveCount;
     Direction lastDir;
 
@@ -26,11 +26,16 @@ public:
     Player();
     virtual ~Player() {}
 
-    virtual void draw();                // 플레이어 출력
-    virtual void remove();              // 플레이어 제거
-    virtual void move(Monster* m);      // 플레이어 움직임    / 공격 출력될때 방향키를 입력받으면 입력받은 만큼 공격이 끝난 후 플레이어 순간이동. 수정필요.
-    virtual void attack(Monster* m);    // 플레이어 공격
+    virtual void draw();
+    virtual void remove();
+    virtual void move(std::vector<Monster>& monsters);
+    virtual void attack(std::vector<Monster>& monsters);
 
-    int getScore() const;               // 플레이어 점수
+    virtual void decreaseHP();
+    virtual int getHP();
 
+    int getX() const;
+    int getY() const;
+
+    int getScore() const;
 };

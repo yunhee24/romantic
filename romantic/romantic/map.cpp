@@ -1,6 +1,14 @@
 ﻿#include "map.h"
 #include "player.h"
 #include "monster.h"
+#include "attack.h"
+#include "Timer.h"   //타이머
+#include <thread>
+#include <vector>
+#include <mutex>
+
+std::vector<Monster> monsters;
+extern std::mutex output_mutex;
 
 // 커서 위치 조정
 void setCursorPosition(int x, int y) {
@@ -9,7 +17,6 @@ void setCursorPosition(int x, int y) {
 }
 
 const int MENU_COUNT = 4;
-
 const string menuItems[MENU_COUNT] = {
     "게임 시작",
     "게임 랭킹",
@@ -63,7 +70,7 @@ void printGameInstructions() {
 }
 
 // 랭킹 출력
-void showRanking(Player &p) {
+void showRanking() {
     ifstream file("scores.txt");
     vector<Scorein> rankings;
 
@@ -72,16 +79,16 @@ void showRanking(Player &p) {
         return;
     }
 
-    //string name;
-    //int score;
-
-    while (file >> p.name >> p.score) {
-        rankings.push_back({ p.name, p.score });
+    string name;
+    int score;
+    while (file >> name >> score) {
+        rankings.push_back({ name, score });
     }
     file.close();
 
     sort(rankings.begin(), rankings.end(), compareByScore);
 
+    //cout << "===== 게임 랭킹 =====\n";
     cout << "\n\n";
     cout << R"(
                       ___             _     _  
@@ -94,18 +101,11 @@ void showRanking(Player &p) {
 
     cout << "\n                                > 게임 랭킹 <";
     cout << "\n              ------------------------------------------------";
-    cout << "\n                    1. JunSeo 17";
-    cout << "\n                    2. KYI 8";
-    cout << "\n                    3. Professor Joe 1";
-    cout << "\n                    4. ";
-    cout << "\n                    5. ";
-    cout << "\n\n\n";
-    
+    cout << "\n\n";
     for (size_t i = 0; i < rankings.size(); ++i) {
-        cout << i + 1 << ". " << rankings[i].name << " - " << rankings[i].score << endl;
+        cout << "                       " << i + 1 << ". " << rankings[i].name << " - " << rankings[i].score << endl;
     }
 }
-
 /*
 저장 실패 처리??
 
@@ -157,10 +157,10 @@ void drawMenu(int selected) {
     cout << "                     ↑↓ 방향키로 이동, Enter로 선택하세요.\n";
 }
 
-// 맵 출력
+// 맵 출력                        
 void drawMap(int width, int height) {
-    int offsetX = 20; // 가로 위치 조정 (공백)
-    int offsetY = 3;  // 세로 위치 조정 (줄바꿈)
+    int offsetX = 25; // 가로 위치 조정 (공백)
+    int offsetY = 5;  // 세로 위치 조정 (줄바꿈)
 
     // 위로 공백 줄 삽입
     for (int i = 0; i < offsetY; ++i) {
@@ -189,8 +189,9 @@ void drawMap(int width, int height) {
 
 // 맵 재출력
 void drawMapRe(int width, int height) {
-    int offsetX = 20;
-    int offsetY = 3;
+    std::lock_guard<std::mutex> lock(output_mutex);
+    int offsetX = 25;
+    int offsetY = 5;
 
     for (int x = 0; x < width; ++x) {
         gotoxy(offsetX + x, offsetY + 0);
@@ -234,7 +235,7 @@ void User(Player& p) {
     setCursorPosition(x, y);
 }
 
-// 움직임 횟수 랜덤 부여
+// 움직임 횟수 랜덤 부여                 >>> 한 번 정해지면 끝. 계속해서 갱신해야함.
 void moveNumber(Player& p) {
     int x = 0, y = 0;
 
@@ -246,11 +247,11 @@ void moveNumber(Player& p) {
 
     srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    cout << "엔터를 눌러주세요.\n";
+    cout << "엔터를 눌러주세요.";
     cin.get();
 
-    p.randNumber = std::rand() % 8 + 1; // Player의 멤버 변수에 저장
-    cout << "랜덤 숫자: " << p.randNumber << "\n";
+    p.randNumber = std::rand() % 3 + 3;           // Player의 멤버 변수에 저장     1일 때 이상한 오류 생김
+    cout << "이동 횟수: " << p.randNumber << "\n";
 
     // 입력 메시지 삭제
     setCursorPosition(x, y);
@@ -260,8 +261,8 @@ void moveNumber(Player& p) {
 
 // 인게임 메인 함수
 int ingame() {
-    const int width = 32;
-    const int height = 16;
+    const int width = 28;  // 맵 크기
+    const int height = 14;
     int selected = 0;
 
     while (true) {
@@ -275,29 +276,35 @@ int ingame() {
         }
         else if (key == 13) {
             system("cls");
+
             if (selected == 0) {
-
                 Player p;
-                User(p);  // 이름 입력
-
+                User(p);
                 moveNumber(p);
-                
                 drawMap(width, height);
 
-                Monster m(12, 2);
-                m.draw();
-                p.move(&m);
-                saveScore(p);
+                ULONGLONG start_time = GetTickCount64();
+                std::thread timer_thread(TimerThread, start_time, 50);       //게임 플레이 시간
 
-                if (p.score >= 1) {
+                Monster m;
+                std::thread monster_thread(&Monster::MonsterCreate, &m, std::ref(monsters));
+
+                p.move(monsters);
+
+                if (timer_thread.joinable()) timer_thread.join();
+                if (monster_thread.joinable()) monster_thread.join();
+
+                if (p.score >= 0) {
                     saveScore(p);
-                    cout << "\n점수: " << p.score << endl;
-                    return 0;
+                    gotoxy(0, 4);
+                    cout << "점수: " << p.score << endl;
+                    //_getch();
                 }
+                break;
             }
             else if (selected == 1) {
                 Player p;
-                showRanking(p);
+                showRanking();
             }
             else if (selected == 2) {
                 printGameInstructions();
@@ -311,14 +318,13 @@ int ingame() {
             _getch();
         }
     }
-
     return 0;
 }
 
-void saveScore(Player& p) {
+void saveScore(const Player& player) {
     ofstream file("scores.txt", ios::app);
     if (file.is_open()) {
-        file << p.name << " " << p.score << "\n";
+        file << player.name << " " << player.score << "\n";
         file.close();
     }
 }

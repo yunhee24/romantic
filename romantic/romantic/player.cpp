@@ -1,27 +1,18 @@
 #include "player.h"
 #include "monster.h"
 #include "map.h"
-
-// 콘솔창 커서 숨김 함수
-void CursorView() {
-    CONSOLE_CURSOR_INFO cursorInfo = { 0, };
-    cursorInfo.dwSize = 1;                  // 커서 굵기 (1 ~ 100)
-    cursorInfo.bVisible = FALSE;            // 커서 Visible TRUE(보임) / FALSE(숨김)
-    SetConsoleCursorInfo(GetStdHandle(STD_OUTPUT_HANDLE), &cursorInfo);
-}
-
-// 키보드 입력 함수
-void gotoxy(int x, int y) {
-    COORD pos = { (SHORT)x, (SHORT)y };
-    SetConsoleCursorPosition(GetStdHandle(STD_OUTPUT_HANDLE), pos);
-}
+#include "attack.h"
+#include <mutex>
+extern std::mutex output_mutex;
+extern bool gamerun;
 
 Player::Player() {
-    x = 18;
-    y = 10;
+    x = 14;
+    y = 9;
     moveCount = 0;
     lastDir = NONE;
     score = 0;
+    hp = 5; // 초기 체력 설정
 }
 
 int Player::getScore() const {
@@ -29,19 +20,38 @@ int Player::getScore() const {
 }
 
 void Player::draw() {
+    std::lock_guard<std::mutex> lock(output_mutex);
     gotoxy(x * 2, y);
     cout << "♀";
+
+    gotoxy(0, 2);
+    cout << "체력: ";
+    for (int i = 0; i < hp; ++i) cout << "♥";
+    cout << "   ";
 }
 
 void Player::remove() {
+    std::lock_guard<std::mutex> lock(output_mutex);
     gotoxy(x * 2, y);
-    cout << " ";
+    cout << "  ";
 }
 
-// 플레이어 공격
-void Player::attack(Monster* m) {
-    int tx = x, ty = y;
+int Player::getX() const { return x; }
+int Player::getY() const { return y; }
 
+void Player::decreaseHP() {
+    hp--;
+    draw();
+    if (hp <= 0)
+        gamerun = false;
+}
+
+int Player::getHP() {
+    return hp;
+}
+
+void Player::attack(std::vector<Monster>& monsters) {
+    int tx = x, ty = y;
     switch (lastDir) {
     case UP:    ty -= 1; break;
     case DOWN:  ty += 1; break;
@@ -51,26 +61,38 @@ void Player::attack(Monster* m) {
     }
 
     int dx = tx, dy = ty;
-
-    for (int i = 1; i < 3; i++) {
+    for (int i = 1; i < 7; i++) {
         if (dx >= 6 && dx <= 26 && dy >= 2 && dy <= 20) {
-            gotoxy(dx * 2, dy);
-            cout << "※";
+            {
+                std::lock_guard<std::mutex> lock(output_mutex);
+                gotoxy(dx * 2, dy);
+                cout << "※";
+            }
             draw();
-            Sleep(100);
-            gotoxy(dx * 2, dy);
-            cout << " ";
-            drawMapRe(32, 16);
+            Sleep(120);
+            {
+                std::lock_guard<std::mutex> lock(output_mutex);
+                gotoxy(dx * 2, dy);
+                cout << "  ";
+            }
+            drawMapRe(28, 14);                               // <<<<맵 재생성
 
-            // 몬스터 충돌 체크
-            if (m->alive && dx == m->x && dy == m->y) {
-                m->remove();
-                score++;
-                gotoxy(0, 7);
-                cout << "점수 " << score << "   ";
+            for (auto& m : monsters) {
+                if (m.alive && (m.x / 2) == dx && m.y == dy) {
+                    m.alive = false;
+                    score++;
+                    {
+                        std::lock_guard<std::mutex> lock(output_mutex);
+                        gotoxy(0, 3);
+                        cout << "점수: " << score << "  ";
+
+                        gotoxy(m.x * 2, m.y);
+                        cout << "  ";
+                    }
+                    break;
+                }
             }
         }
-
         switch (lastDir) {
         case UP:    dy--; break;
         case DOWN:  dy++; break;
@@ -80,48 +102,45 @@ void Player::attack(Monster* m) {
     }
 }
 
-// 플레이어 움직임
-void Player::move(Monster* m) {
+void Player::move(std::vector<Monster>& monsters) {
     char in;
     draw();
-
-    while (true) {
+    while (gamerun) {
         if (_kbhit()) {
             in = _getch();
-
             if (in == 0 || in == -32 || in == 224) {
                 in = _getch();
-
                 remove();
                 bool moved = false;
-
                 switch (in) {
-                case 72:
-                    if (y > 4) { y--; moved = true; lastDir = UP; }
-                    break;
-                case 80:
-                    if (y < 17) { y++; moved = true; lastDir = DOWN; }
-                    break;
-                case 75:
-                    if (x > 11) { x--; moved = true; lastDir = LEFT; }
-                    break;
-                case 77:
-                    if (x < 25) { x++; moved = true; lastDir = RIGHT; }
-                    break;
+                case 72: if (y > 6) { y--; moved = true; lastDir = UP; } break;
+                case 80: if (y < 17) { y++; moved = true; lastDir = DOWN; } break;    // y < 17
+                case 75: if (x > 13) { x--; moved = true; lastDir = LEFT; } break;
+                case 77: if (x < 25) { x++; moved = true; lastDir = RIGHT; } break;   // x < 25
                 }
-
-                // 움직임 횟수
                 if (moved) {
                     moveCount++;
-                    gotoxy(0, 3);
-                    cout << "이동 " << moveCount << "   ";
+                    {
+                        std::lock_guard<std::mutex> lock(output_mutex);
+                        gotoxy(0, 3);
+                        cout << "남은 이동 횟수: " << moveCount << "   ";
+                    }
+
+                    UpdateAttacks(this);     //몬스터 공격 이동 시키기
 
                     if (moveCount == randNumber) {
-                        attack(m);
+                        attack(monsters);
                         moveCount = 0;
+
+                        // 새로운 랜덤 이동 횟수 재할당
+                        randNumber = rand() % 3 + 3;
+                        {
+                            std::lock_guard<std::mutex> lock(output_mutex);
+                            gotoxy(0, 1);
+                            cout << "이동 횟수: " << randNumber << "   ";
+                        }
                     }
                 }
-
                 draw();
             }
         }
