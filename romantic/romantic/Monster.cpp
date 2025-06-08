@@ -51,7 +51,7 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
     int xs[MAX], ys[MAX], dirs[MAX];
 
     while (gamerun) {
-        int mcnt = rand() % 3 + 2;  // 2~4마리 생성
+        int mcnt = rand() % 3 + 2;     //몬스터 수
 
         for (int i = 0; i < mcnt; i++) {
             int dir = rand() % 4;
@@ -61,11 +61,11 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
                 // 위쪽
             case 0: y = MAP_TOP - 1; x = rand() % 20 + 25; break;
                 // 아래쪽 
-            case 1: y = MAP_BOTTOM + 1; x = rand() % 20 + 25; break;
+            case 1: y = MAP_BOTTOM + 1; x = rand() % 20 + 25; break;  //MAP_BOTTOM + 1
                 // 왼쪽
             case 2: x = MAP_LEFT - 2; y = rand() % 10 + 5; break;
                 // 오른쪽
-            case 3: x = MAP_RIGHT + 5; y = rand() % 10 + 5; break;
+            case 3: x = MAP_RIGHT + 1; y = rand() % 10 + 5; break;    //MAP_RIGHT + 5
             }
             xs[i] = x;
             ys[i] = y;
@@ -86,12 +86,6 @@ void Monster::MonsterCreate(std::vector<Monster>& monsters) {
         for (int i = 0; i < mcnt; ++i) {
             PrintMonster(xs[i], ys[i], dirs[i]);
         }
-
-        // 일정 시간 유지 후 제거
-        int duration = (rand() % 5 + 2) * 1000;
-        std::this_thread::sleep_for(std::chrono::milliseconds(duration));
-
-        this->MonsterClear(xs, ys, mcnt, monsters);
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+        Sleep(mcnt * 1000);     //몬스터 재생성 시간
     }
 }

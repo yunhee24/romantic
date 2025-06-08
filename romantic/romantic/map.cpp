@@ -273,8 +273,21 @@ void moveNumber(Player& p) {
 
     srand(static_cast<unsigned int>(std::time(nullptr)));
 
-    cout << "엔터를 눌러주세요.";
+    cout << "\n\n";
+    cout << R"(
+                             _   _
+                            | | | |
+                            | | | | ___  ___  _  _
+                            | | | |/ __|/ _ \| |/_|
+                            | |_| |\__ \  __/|  / 
+                             \___/ |___/\___||_|
+)";
+
+    cout << "\n                 ------------------------------------------------ \n\n ";
+    cout << "               이동 횟수를 랜덤으로 부여합니다. 엔터를 눌러주세요. \n";
     cin.get();
+    system("cls");
+
 
     p.randNumber = std::rand() % 3 + 3;           // Player의 멤버 변수에 저장     1일 때 이상한 오류 생김
     cout << "이동 횟수: " << p.randNumber << "\n";
@@ -322,8 +335,8 @@ int ingame() {
 
                 if (p.score >= 0) {
                     saveScore(p);
-                    gotoxy(0, 4);
-                    cout << "점수: " << p.score << endl;
+                    //gotoxy(0, 4);
+                    //cout << "점수: " << p.score << endl;
                     //_getch();
                 }
                 break;

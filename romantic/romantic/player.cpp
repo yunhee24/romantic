@@ -131,7 +131,7 @@ void Player::move(std::vector<Monster>& monsters) {
                     moveCount++;
                     {
                         std::lock_guard<std::mutex> lock(output_mutex);
-                        gotoxy(0, 3);
+                        gotoxy(0, 4);
                         cout << "남은 이동 횟수: " << moveCount << "   ";
                     }
 
