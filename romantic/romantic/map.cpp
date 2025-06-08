@@ -75,7 +75,20 @@ void showRanking() {
     vector<Scorein> rankings;
 
     if (!file) {
-        cout << "랭킹 파일이 없습니다.\n";
+        cout << "\n\n";
+        cout << R"(
+                      ___             _     _  
+                     | _ \ __ _ _ __ | | __|_|_ __  _____ 
+                     | |) / _` | '_ \| |/ / _| '_ \/  _  \
+                     | _ < (_| | | | |   < | | | | | |_| |
+                     |_|\_\__,_|_| |_|_|\_\|_|_| |_|\__, |
+                                                    |___/ 
+    )";
+
+        cout << "\n                                > 게임 랭킹 <";
+        cout << "\n              ------------------------------------------------";
+        cout << "\n\n";
+        cout << "                            랭킹 파일이 없습니다.\n\n\n\n\n\n";
         return;
     }
 
@@ -90,6 +103,8 @@ void showRanking() {
 
     //cout << "===== 게임 랭킹 =====\n";
     cout << "\n\n";
+   
+    
     cout << R"(
                       ___             _     _  
                      | _ \ __ _ _ __ | | __|_|_ __  _____ 
@@ -105,6 +120,7 @@ void showRanking() {
     for (size_t i = 0; i < rankings.size(); ++i) {
         cout << "                       " << i + 1 << ". " << rankings[i].name << " - " << rankings[i].score << endl;
     }
+    cout << "\n\n\n\n";
 }
 /*
 저장 실패 처리??
@@ -226,13 +242,23 @@ void User(Player& p) {
     y = csbi.dwCursorPosition.Y;
 
     // 입력 메시지 출력
-    cout << "플레이어 이름을 입력하세요 : ";
+    
+    cout << "\n\n";
+    cout << R"(
+                             _   _
+                            | | | |
+                            | | | | ___  ___  _  _
+                            | | | |/ __|/ _ \| |/_|
+                            | |_| |\__ \  __/|  / 
+                             \___/ |___/\___||_|
+)";
+
+    cout <<"\n                 ------------------------------------------------ \n\n ";
+    cout << "                         이름을 입력하세요. (공백 제외) \n";
+    cout << "\n                               > ";
     getline(cin, p.name);
 
-    // 입력 메시지 삭제
-    setCursorPosition(x, y);
-    cout << string(50, ' ');
-    setCursorPosition(x, y);
+    system("cls");
 }
 
 // 움직임 횟수 랜덤 부여                 >>> 한 번 정해지면 끝. 계속해서 갱신해야함.

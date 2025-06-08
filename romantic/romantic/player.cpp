@@ -20,9 +20,14 @@ int Player::getScore() const {
 }
 
 void Player::draw() {
+    HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+
     std::lock_guard<std::mutex> lock(output_mutex);
     gotoxy(x * 2, y);
+
+    SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
     cout << "¡Ï";
+    SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
 
     gotoxy(0, 2);
     cout << "Ã¼·Â: ";
@@ -62,11 +67,15 @@ void Player::attack(std::vector<Monster>& monsters) {
 
     int dx = tx, dy = ty;
     for (int i = 1; i < 7; i++) {
-        if (dx >= 6 && dx <= 26 && dy >= 2 && dy <= 20) {
+        if (dx >= 6 && dx <= 27 && dy >= 2 && dy <= 20) {
             {
+                HANDLE hConsole = GetStdHandle(STD_OUTPUT_HANDLE);
+                
                 std::lock_guard<std::mutex> lock(output_mutex);
                 gotoxy(dx * 2, dy);
+                SetConsoleTextAttribute(hConsole, FOREGROUND_GREEN | FOREGROUND_INTENSITY);
                 cout << "¡Ø";
+                SetConsoleTextAttribute(hConsole, FOREGROUND_RED | FOREGROUND_GREEN | FOREGROUND_BLUE);
             }
             draw();
             Sleep(120);

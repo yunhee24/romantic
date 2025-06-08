@@ -13,15 +13,15 @@ class Monster;
 
 class Player {
 protected:
-    int x, y;
-    int hp;
-    int moveCount;
-    Direction lastDir;
+    int x, y;           // 플레이어 위치
+    int hp;             // 체력
+    int moveCount;      // 움직임 횟수
+    Direction lastDir;  // 마지막 이동 방향
 
 public:
-    int score;
-    int randNumber;
-    string name;
+    int score;          // 점수
+    int randNumber;     // 이동 횟수 랜덤 할당
+    string name;        // 이름 입력
 
     Player();
     virtual ~Player() {}

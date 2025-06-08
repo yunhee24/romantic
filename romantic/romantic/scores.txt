@@ -1,5 +1,6 @@
-tt 1
-yunhee 5
- 7
- 0
- 0
+unicorn 5
+professor_Joe 2 
+KYI 5
+JUNSEO 7
+YUNHEE 0
+. 0
